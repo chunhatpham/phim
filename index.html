@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChuNhatPham</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ChuNhatPham">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b0b0c">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png?=V2">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png?=V2">
+    <link rel="shortcut icon" type="image/png" href="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png?=V2">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="global-modal-overlay" id="global-modal-overlay">
+        <div class="global-modal-box" id="global-modal-box">
+            <button class="modal-close-icon" onclick="closeNotification()"><i class="fas fa-times"></i></button>
+            <div class="modal-header"><i class="" id="modal-icon"></i><h2 id="modal-title">Tiêu Đề</h2></div>
+            <div class="modal-body"><p id="modal-message">Nội dung</p></div>
+            <div class="modal-footer"><button class="modal-btn" id="modal-action-btn" onclick="closeNotification()">Đóng</button></div>
+        </div>
+    </div>
+
+    <div class="deposit-modal-overlay" id="deposit-modal-overlay">
+        <div class="deposit-modal-box">
+            <button class="dep-close" onclick="closeDepositModal()"><i class="fas fa-times"></i></button>
+            <h2 class="dep-title" id="dep-title"><i class="fas fa-wallet"></i> Nạp Tiền</h2>
+            
+            <div class="input-amount-wrapper">
+                <label>Nhập số tiền muốn nạp (VNĐ):</label>
+                <input type="number" class="dep-input" id="deposit-amount" placeholder="VD: 100000" oninput="checkAmount()">
+            </div>
+            
+            <div class="quick-amounts">
+                <button class="quick-btn" onclick="setAmount(50000)">50.000đ</button>
+                <button class="quick-btn" onclick="setAmount(100000)">100.000đ</button>
+                <button class="quick-btn" onclick="setAmount(200000)">200.000đ</button>
+                <button class="quick-btn" onclick="setAmount(500000)">500.000đ</button>
+            </div>
+            
+            <div class="transfer-details-area" id="area-manual">
+                <p style="color: #00c6ff; font-weight: bold; margin-bottom: 15px; text-align: center;">Vui lòng chuyển khoản theo thông tin sau:</p>
+                <div class="bank-info-row"><span class="b-label">Ngân hàng</span><span class="b-val">MB Bank</span></div>
+                <div class="bank-info-row"><span class="b-label">Số tài khoản</span><span class="b-val"><span id="bank-acc">0394539007</span> <i class="far fa-copy b-copy" title="Copy" onclick="copyText('bank-acc')"></i></span></div>
+                <div class="bank-info-row"><span class="b-label">Chủ tài khoản</span><span class="b-val">DINH ANH CHANG</span></div>
+                <div class="bank-info-row" style="border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px;">
+                    <span class="b-label">Nội dung (Bắt buộc)</span>
+                    <span class="b-val" style="color: #f5c518;"><span id="bank-content-text">NAP...</span> <i class="far fa-copy b-copy" title="Copy" onclick="copyText('bank-content-text')"></i></span>
+                </div>
+            </div>
+            
+            <div class="transfer-details-area" id="area-qr">
+                <p style="color: #00e676; font-weight: bold; margin-bottom: 10px; text-align: center;">Quét mã QR bằng ứng dụng ngân hàng</p>
+                <div class="qr-image-box">
+                    <img src="https://i.postimg.cc/sxSC71bn/IMG-5749.jpg" alt="Mã QR Thanh Toán" style="width: 250px; height: 250px; object-fit: contain; background: white; border-radius: 10px; border: 5px solid white;">
+                    <div class="bank-info-row" style="margin-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px;">
+                        <span class="b-label" style="text-align: left;">Mã giao dịch (Nội dung CK)</span>
+                        <span class="b-val" style="color: #f5c518;"><span id="qr-content-text">NAP...</span> <i class="far fa-copy b-copy" title="Copy" onclick="copyText('qr-content-text')"></i></span>
+                    </div>
+                    <p class="qr-note">Hệ thống sẽ tự động ghi nhận sau 1-3 phút.</p>
+                </div>
+            </div>
+
+            <div class="deposit-warning-box" id="deposit-warning-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Vui lòng thanh toán đúng với số tiền muốn nạp và nhập đúng mã giao dịch , nếu cố tình nhập sai sẽ không được hoàn và hỗ trợ xin cảm ơn quý khách thân mến</p>
+            </div>
+            
+            <button class="btn-confirm-deposit" id="btn-confirm-dep" onclick="confirmDeposit()" style="opacity: 0.5; pointer-events: none;">Xác Nhận Đã Thanh Toán</button>
+        </div>
+    </div>
+
+    <div class="deposit-success-overlay" id="deposit-success-overlay">
+        <div class="success-icon-giant"><i class="fas fa-check"></i></div><h1>Tuyệt Vời!</h1><p id="success-amount-text">+ 100.000 VNĐ đã được cộng vào ví</p><button class="btn-close-success" onclick="closeSuccessCelebration()">Về Trang Quản Lý</button>
+    </div>
+
+    <div class="otp-modal-overlay" id="otp-modal-overlay">
+        <div class="otp-modal-box">
+            <button class="otp-close" onclick="closeOtpModal()"><i class="fas fa-times"></i></button>
+            <h2 class="otp-title"><i class="fas fa-shield-check"></i> Xác Nhận Bảo Mật</h2>
+            
+            <div class="otp-warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="otp-warning-text">
+                    <strong>LƯU Ý QUAN TRỌNG:</strong> Mã này để đảm bảo bảo mật tuyệt đối cho khách hàng. Mã xác nhận sẽ được gửi về số điện thoại hoặc email của bạn sau khi thanh toán. Vui lòng nhập <strong>chính xác</strong> mã để xác nhận và tuyệt đối <strong>không chia sẻ</strong> cho bất kỳ ai. Chân thành cảm ơn!
+                </div>
+            </div>
+
+            <input type="text" class="otp-input" id="otp-code-input" placeholder="NHẬP MÃ TẠI ĐÂY" maxlength="8">
+            <button class="btn-verify-otp" onclick="verifyAndCompleteDeposit()">Xác Nhận Nạp Tiền</button>
+        </div>
+    </div>
+
+    <div class="payment-modal-overlay" id="payment-modal-overlay">
+        <div class="payment-modal-box">
+            <div class="pay-header"><h2>Thanh Toán & Gia Hạn Gói</h2><button onclick="closePaymentModal()"><i class="fas fa-times"></i></button></div>
+            <div class="pay-body">
+                <h3 class="pay-package-name" id="pay-package-name">Tên Gói</h3>
+                <div class="duration-grid">
+                    <div class="dur-card active" onclick="selectDuration(this, 1, 0)"><h4>1 Tháng</h4><p>Cơ bản</p></div>
+                    <div class="dur-card" onclick="selectDuration(this, 3, 10)"><div class="dur-badge">-10%</div><h4>3 Tháng</h4><p>Tiết kiệm</p></div>
+                    <div class="dur-card" onclick="selectDuration(this, 6, 20)"><div class="dur-badge">-20%</div><h4>6 Tháng</h4><p>Phổ biến</p></div>
+                    <div class="dur-card" onclick="selectDuration(this, 12, 30)"><div class="dur-badge gold">-30% VIP</div><h4>1 Năm</h4><p>Tốt nhất</p></div>
+                </div>
+                <div class="pay-summary"><span>Tổng thanh toán:</span><div class="pay-total-price" id="pay-total-price">0đ</div></div>
+                <p class="pay-methods-title">Tài khoản ví của bạn:</p>
+                <div class="wallet-info-box">
+                    <div class="wallet-left"><span class="wallet-label"><i class="fas fa-wallet"></i> Số dư hiện tại</span><span class="wallet-balance" id="current-user-balance">0 VNĐ</span></div>
+                    <button class="btn-topup-small" onclick="closePaymentModal(); closePlayer(); openTab('tab-wallet');">Nạp Thêm</button>
+                </div>
+                <button class="btn-confirm-pay" onclick="processPayment()">Thanh Toán Bằng Ví</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="player-overlay" id="player-overlay">
+        <div class="player-container">
+            <div class="player-header">
+                <div class="player-title-box"><h2 id="player-title"><i class="fas fa-play"></i> Đang tải...</h2></div>
+                <div class="header-actions">
+                    <button class="btn-favorite" onclick="showNotification('success', 'Thành Công', 'Đã thêm phim vào Danh sách Yêu thích!', 'Tuyệt vời')"><i class="fas fa-heart"></i> Yêu Thích</button>
+                    <button class="close-player-btn" onclick="closePlayer()"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            
+            <div class="player-body-scroll" id="player-scroll-area">
+                <div class="audio-detail-header">
+                    <div class="audio-cover-wrapper">
+                        <img id="audio-cover-img" src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Cover">
+                    </div>
+                    <h2 id="audio-title">Tên Tác Phẩm Đang Tải...</h2>
+                    <p class="audio-publisher">Nhà xuất bản chunhatpham</p>
+                    
+                    <div class="audio-stats">
+                        <span class="stat-listens"><i class="fas fa-headphones"></i> <span id="audio-listens-count">0</span></span>
+                        <span class="stat-rating"><i class="fas fa-star"></i> <span id="audio-rating-score">0.0</span></span>
+                    </div>
+
+                    <div class="audio-actions">
+                        <button class="btn-play-audio" onclick="playMainAudio()"><i class="fas fa-play"></i> Nghe</button>
+                        <button class="btn-action-secondary" onclick="showNotification('success', 'Yêu Thích', 'Đã thêm vào danh sách yêu thích!', 'Tuyệt')">
+                            <i class="fas fa-heart"></i> Yêu Thích
+                        </button>
+                        <button class="btn-action-secondary" onclick="showNotification('info', 'Chia Sẻ', 'Đã copy link chia sẻ!', 'Đóng')">
+                            <i class="fas fa-share"></i> Chia Sẻ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="audio-tabs-container">
+                    <div class="audio-tab active" id="tab-btn-episodes" onclick="switchAudioTab('episodes')">Danh sách các tập</div>
+                    <div class="audio-tab" id="tab-btn-comments" onclick="switchAudioTab('comments')">Bình luận & Đánh giá</div>
+                </div>
+
+                <div id="audio-tab-episodes" class="audio-tab-content active">
+                    <div class="audio-ep-list" id="audio-ep-list"></div>
+                </div>
+
+                <div id="audio-tab-comments" class="audio-tab-content">
+                    <div class="reviews-section" id="movie-reviews-section" style="border-bottom: none;">
+                        <div class="reviews-header">
+                            <h3><i class="fas fa-comments"></i> Đánh Giá & Bình Luận</h3>
+                            <div class="overall-rating"><i class="fas fa-star"></i> <span id="review-overall-score">4.8</span> Tổng quan</div>
+                        </div>
+                        <div class="reviews-list" id="dynamic-reviews-list"></div>
+                        
+                        <div class="write-review-wrapper" id="write-review-form">
+                            <h4><i class="fas fa-pen-alt"></i> Viết đánh giá của bạn</h4>
+                            <div class="review-inputs-row">
+                                <input type="text" id="rev-name" placeholder="Họ và tên của bạn *" required>
+                                <input type="text" id="rev-contact" placeholder="Số điện thoại hoặc Email liên hệ *" required>
+                            </div>
+                            <div class="review-star-selection">
+                                <span style="color: #ccc; font-size: 15px;">Chất lượng: </span>
+                                <div class="star-select" id="star-rating-system">
+                                    <i class="far fa-star" data-val="1"></i><i class="far fa-star" data-val="2"></i><i class="far fa-star" data-val="3"></i><i class="far fa-star" data-val="4"></i><i class="far fa-star" data-val="5"></i>
+                                </div>
+                            </div>
+                            <textarea id="rev-content" placeholder="Chia sẻ cảm nhận của bạn về tác phẩm này... *" required></textarea>
+                            <button class="btn-submit-review" onclick="submitReview()"><i class="fas fa-paper-plane"></i> Gửi Đánh Giá</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recommended-movies-section">
+                    <h3><i class="fas fa-film"></i> Có Thể Bạn Sẽ Thích</h3>
+                    <div class="movie-row">
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 1')">
+                            <img src="https://i.postimg.cc/HxZyvqQD/IMG-0736.jpg" alt="Đề xuất 1">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 1</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 2')">
+                            <img src="https://i.postimg.cc/zBXhjzRG/IMG-0737.jpg" alt="Đề xuất 2">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 2</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 3')">
+                            <img src="https://i.postimg.cc/KzqMp6nX/IMG-0738.jpg" alt="Đề xuất 3">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 3</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 4')">
+                            <img src="https://i.postimg.cc/4dNc5fhg/IMG-0739.jpg" alt="Đề xuất 4">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 4</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 5')">
+                            <img src="https://i.postimg.cc/G2hDQLs1/IMG-0740.jpg" alt="Đề xuất 5">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 5</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 6')">
+                            <img src="https://i.postimg.cc/PxrD4X8T/IMG-0741.jpg" alt="Đề xuất 6">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 6</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 7')">
+                            <img src="https://i.postimg.cc/SsN9rSzF/IMG-0742.jpg" alt="Đề xuất 7">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 7</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                        <div class="movie-card" onclick="openPlayer('Tuyển Tập Đề Xuất 8')">
+                            <img src="https://i.postimg.cc/ydYRP13f/IMG-0743.jpg" alt="Đề xuất 8">
+                            <div class="card-overlay"><h3>Tuyển Tập Đề Xuất 8</h3><span><i class="fas fa-star"></i> Đề xuất cho bạn</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="player-footer">
+                    <div class="footer-grid">
+                        <div class="footer-about">
+                            <h4>chunhatpham</h4>
+                            <p>Xem phim chunhatpham chất lượng cao, hỗ trợ phụ đề tiếng Việt, thuyết minh và lồng tiếng. Kho phim đa dạng với hơn 10.000+ tựa phim, liên tục cập nhật các thể loại hot như phim truyện tranh hình ảnh vietsub hay nhất.</p>
+                            <p>Website có giao diện thân thiện và trực quan, dễ sử dụng, tốc độ tải nhanh. Luôn cập nhật phim mới mỗi ngày, mang đến trải nghiệm giải trí tuyệt vời cho mọi người yêu phim.</p>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Trợ giúp</h4><ul><li><a href="#">Điều khoản chung</a></li><li><a href="#">Chính sách riêng tư</a></li><li><a href="#">Sitemap</a></li><li><a href="#">RSS Feed</a></li></ul>
+                        </div>
+                        <div class="footer-links">
+                            <h4>PhimNet</h4><ul><li><a href="#">Trang chủ</a></li><li><a href="#">Giới thiệu</a></li><li><a href="#">FAQ</a></li><li><a href="#">Liên hệ</a></li></ul>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <span class="close-ads-btn" onclick="showNotification('info', 'Quảng Cáo', 'Tính năng chặn quảng cáo dành riêng cho tài khoản VIP. Vui lòng nâng cấp!', 'Đóng')">Tắt QC ✕</span>
+                        <span>GoGolite V22</span>
+                    </div>
+                </footer>
+            </div> 
+        </div>
+    </div>
+
+    <header id="header">
+        <div class="header-left" onclick="openTab('tab-home')">
+            <div class="logo-forge-wrapper">
+                <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Chunhatpham Logo" class="custom-img-logo">
+            </div>
+            <span class="logo-text">chunhatpham</span>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-crown" id="header-crown-status" onclick="openPremiumModal()"></i>
+            <i class="fas fa-bars" id="menu-btn"></i>
+        </div>
+    </header>
+
+    <div class="search-container-wrapper">
+        <div class="long-search-bar">
+            <i class="fas fa-search" onclick="showNotification('info', 'Chức Năng Tìm Kiếm', 'Hệ thống đang phân tích kho phim...', 'Đã hiểu')"></i>
+            <input type="text" placeholder="Tìm kiếm...">
+        </div>
+    </div>
+
+    <nav class="sidebar-menu" id="sidebar">
+        <i class="fas fa-times close-btn" id="close-btn"></i>
+        <ul>
+            <li><a href="#" class="menu-link active-link" data-target="tab-home">Trang Chủ</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-hot">Phim Hot</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-single">Khám Phá</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-series">Phim Bộ</a></li>
+            <li class="menu-divider"></li>
+            <li><a href="#" class="menu-link" data-target="tab-list">Danh Sách</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-wallet">Ví & Số Dư</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-history">Lịch Sử Xem</a></li>
+            <li class="menu-divider"></li>
+            <li><a href="#" class="menu-link" data-target="tab-account"><i class="fas fa-user-circle"></i> Tài khoản</a></li>
+            <li><a href="#" class="menu-link" data-target="tab-contact"><i class="fas fa-envelope"></i> Liên hệ</a></li>
+        </ul>
+    </nav>
+
+    <main id="main-content">
+        <section id="tab-home" class="tab-content active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>Truyện Tranh VietSub</h1>
+                    <p>Khám phá kho phim khổng lồ với chất lượng hình ảnh sắc nét. Cập nhật liên tục những với những nội dung hay và mới lạ nhất.</p>
+                    <button class="play-btn" onclick="openPlayer('Vũ Trụ Vô Tận')"><i class="fas fa-play"></i> Xem Ngay</button>
+                    <button class="premium-hero-btn" id="main-premium-btn" onclick="openPremiumModal()"><i class="fas fa-crown"></i> Nâng Cấp Premium</button>
+                </div>
+            </div>
+
+            <div class="movie-category" style="padding-top: 40px;">
+                <div class="category-header">
+                    <div class="cat-symbol" style="background: linear-gradient(135deg, #11998e, #38ef7d);"><i class="fas fa-clock"></i></div>
+                    <h2 style="background: linear-gradient(45deg, #11998e, #38ef7d); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Mới Nhất</h2>
+                </div>
+                <div class="movie-row" id="latest-movie-grid">
+                    <div class="movie-card" onclick="openPlayer('Nữ Thần Liễu Như Yên')">
+                        <img src="https://i.postimg.cc/y8nPZmYS/gen.jpg" alt="Nữ Thần Liễu Như Yên">
+                        <div class="new-badge-tag">NEW</div>
+                        <div class="card-overlay">
+                            <h3>Nữ Thần Liễu Như Yên</h3>
+                            <span style="color: #38ef7d;"><i class="fas fa-play-circle"></i> Vừa ra mắt</span>
+                        </div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tôi Nằm Trên Ván Cược')">
+                        <img src="https://i.postimg.cc/D0shyZ6b/gen.jpg" alt="Tôi Nằm Trên Ván Cược">
+                        <div class="new-badge-tag">NEW</div>
+                        <div class="card-overlay">
+                            <h3>Tôi Nằm Trên Ván Cược</h3>
+                            <span style="color: #38ef7d;"><i class="fas fa-play-circle"></i> Vừa ra mắt</span>
+                        </div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tái Sinh Cùng Vợ Mình')">
+                        <img src="https://i.postimg.cc/y6nhBL9c/gen.jpg" alt="Tái Sinh Cùng Vợ Mình">
+                        <div class="new-badge-tag">NEW</div>
+                        <div class="card-overlay">
+                            <h3>Tái Sinh Cùng Vợ Mình</h3>
+                            <span style="color: #38ef7d;"><i class="fas fa-play-circle"></i> Vừa ra mắt</span>
+                        </div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Không Cùng Thế Giới Mà')">
+                        <img src="https://i.postimg.cc/3wJfK4Ns/gen.jpg" alt="Không Cùng Thế Giới Mà">
+                        <div class="new-badge-tag">NEW</div>
+                        <div class="card-overlay">
+                            <h3>Không Cùng Thế Giới Mà</h3>
+                            <span style="color: #38ef7d;"><i class="fas fa-play-circle"></i> Vừa ra mắt</span>
+                        </div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Hoàn Hảo Với Em Gái')">
+                        <img src="https://i.postimg.cc/PJs2GjKT/IMG-1498.jpg" alt="Hoàn Hảo Với Em Gái">
+                        <div class="new-badge-tag">NEW</div>
+                        <div class="card-overlay">
+                            <h3>Hoàn Hảo Với Em Gái</h3>
+                            <span style="color: #38ef7d;"><i class="fas fa-play-circle"></i> Vừa ra mắt</span>
+                        </div>
+                    </div>
+                    
+                    <div class="movie-card card-updating" onclick="showNotification('info', 'Đang Chuẩn Bị', 'Nội dung khung này đang được Admin cập nhật. Bạn vui lòng quay lại sau nhé!', 'Đã hiểu')">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Trống">
+                        <div class="locked-icon-overlay" style="color: rgba(255,255,255,0.4);"><i class="fas fa-tools"></i></div>
+                        <div class="card-overlay"><h3>Khung Phim Trống</h3><span>Đang tải nội dung...</span></div>
+                    </div>
+                    <div class="movie-card card-updating" onclick="showNotification('info', 'Đang Chuẩn Bị', 'Nội dung khung này đang được Admin cập nhật. Bạn vui lòng quay lại sau nhé!', 'Đã hiểu')">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Trống">
+                        <div class="locked-icon-overlay" style="color: rgba(255,255,255,0.4);"><i class="fas fa-tools"></i></div>
+                        <div class="card-overlay"><h3>Khung Phim Trống</h3><span>Đang tải nội dung...</span></div>
+                    </div>
+                    <div class="movie-card card-updating" onclick="showNotification('info', 'Đang Chuẩn Bị', 'Nội dung khung này đang được Admin cập nhật. Bạn vui lòng quay lại sau nhé!', 'Đã hiểu')">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Trống">
+                        <div class="locked-icon-overlay" style="color: rgba(255,255,255,0.4);"><i class="fas fa-tools"></i></div>
+                        <div class="card-overlay"><h3>Khung Phim Trống</h3><span>Đang tải nội dung...</span></div>
+                    </div>
+                    <div class="movie-card card-updating" onclick="showNotification('info', 'Đang Chuẩn Bị', 'Nội dung khung này đang được Admin cập nhật. Bạn vui lòng quay lại sau nhé!', 'Đã hiểu')">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Trống">
+                        <div class="locked-icon-overlay" style="color: rgba(255,255,255,0.4);"><i class="fas fa-tools"></i></div>
+                        <div class="card-overlay"><h3>Khung Phim Trống</h3><span>Đang tải nội dung...</span></div>
+                    </div>
+                    <div class="movie-card card-updating" onclick="showNotification('info', 'Đang Chuẩn Bị', 'Nội dung khung này đang được Admin cập nhật. Bạn vui lòng quay lại sau nhé!', 'Đã hiểu')">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Trống">
+                        <div class="locked-icon-overlay" style="color: rgba(255,255,255,0.4);"><i class="fas fa-tools"></i></div>
+                        <div class="card-overlay"><h3>Khung Phim Trống</h3><span>Đang tải nội dung...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="movie-category">
+                <div class="category-header">
+                    <div class="cat-symbol sym-trending"><i class="fas fa-fire"></i></div>
+                    <h2 class="txt-trending">Thịnh Hành </h2>
+                </div>
+                <div class="movie-row">
+                    <div class="movie-card" onclick="openPlayer('Hẹn Hò Với Nữ Minh Tinh')">
+                        <img src="https://i.postimg.cc/sg18FMgZ/IMG-0514.jpg" alt="Hẹn Hò Với Nữ Minh Tinh">
+                        <div class="card-overlay"><h3>Hẹn Hò Với Nữ Minh Tinh</h3><span><i class="fas fa-fire"></i> Top 1 Thịnh Hành</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Nấu Ăn Để Câu Cá')">
+                        <img src="https://i.postimg.cc/gk4Fb9yN/IMG_0513.jpg" alt="Nấu Ăn Để Câu Cá">
+                        <div class="card-overlay"><h3>Nấu Ăn Để Câu Cá</h3><span><i class="fas fa-star"></i> Mới Cập Nhật</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Bảo Vệ Mẹ Mình Khỏi')">
+                        <img src="https://i.postimg.cc/P53jYGPN/IMG_0512.jpg" alt="Bảo Vệ Mẹ Mình Khỏi">
+                        <div class="card-overlay"><h3>Bảo Vệ Mẹ Mình Khỏi</h3><span><i class="fas fa-play-circle"></i> Tập Mới Nhất</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Hôn Em Một Cái Thôi Mà')">
+                        <img src="https://i.postimg.cc/FKzhBr2s/IMG_0511.jpg" alt="Hôn Em Một Cái Thôi Mà">
+                        <div class="card-overlay"><h3>Hôn Em Một Cái Thôi Mà</h3><span><i class="fas fa-heart"></i> Lãng Mạn</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Họ Cứ Nghĩ Tôi Theo Em')">
+                        <img src="https://i.postimg.cc/YCk9bwrP/IMG_0510.jpg" alt="Họ Cứ Nghĩ Tôi Theo Em">
+                        <div class="card-overlay"><h3>Họ Cứ Nghĩ Tôi Theo Em</h3><span><i class="fas fa-fire"></i> Đang Hot</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Chuyển Tới Lớp Với Thanh Mai')">
+                        <img src="https://i.postimg.cc/265rgzMb/IMG_0509.jpg" alt="Chuyển Tới Lớp Với Thanh Mai">
+                        <div class="card-overlay"><h3>Chuyển Tới Lớp Với Thanh Mai</h3><span><i class="fas fa-star"></i> Đề Xuất</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="movie-category">
+                <div class="category-header">
+                    <div class="cat-symbol sym-action"><i class="fas fa-bolt"></i></div>
+                    <h2 class="txt-action">Nhiều Like Nhất</h2>
+                </div>
+                <div class="movie-row">
+                    <div class="movie-card" onclick="openPlayer('Chuyển Tới Lớp Với Thanh Mai')">
+                        <img src="https://i.postimg.cc/265rgzMb/IMG_0509.jpg" alt="Chuyển Tới Lớp Với Thanh Mai">
+                        <div class="card-overlay"><h3>Chuyển Tới Lớp Với Thanh Mai</h3><span><i class="fas fa-bolt"></i> Hành Động Mới</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Hoa Khôi Bám Tôi Nhất')">
+                        <img src="https://i.postimg.cc/4NKNJbPM/IMG_0515.jpg" alt="Hoa Khôi Bám Tôi Nhất">
+                        <div class="card-overlay"><h3>Hoa Khôi Bám Tôi Nhất</h3><span><i class="fas fa-bomb"></i> Kịch Tính</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tôi Theo Đuổi Hoa Khôi Trường')">
+                        <img src="https://i.postimg.cc/DybnVfyK/IMG_0516.jpg" alt="Tôi Theo Đuổi Hoa Khôi Trường">
+                        <div class="card-overlay"><h3>Tôi Theo Đuổi Hoa Khôi Trường</h3><span><i class="fas fa-fire"></i> Hấp Dẫn</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Trở Thành Nhà Thiên Tài')">
+                        <img src="https://i.postimg.cc/xCcTcvYP/IMG_0517.jpg" alt="Trở Thành Nhà Thiên Tài">
+                        <div class="card-overlay"><h3>Trở Thành Nhà Thiên Tài</h3><span><i class="fas fa-fist-raised"></i> Mãn Nhãn</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Bỏ Đồ Ăn Chán Ghét')">
+                        <img src="https://i.postimg.cc/pTFbwqRn/IMG_0518.jpg" alt="Bỏ Đồ Ăn Chán Ghét">
+                        <div class="card-overlay"><h3>Bỏ Đồ Ăn Chán Ghét</h3><span><i class="fas fa-skull-crossbones"></i> Gay Cấn</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Biến Mất Vì Hết Hi Vọng')">
+                        <img src="https://i.postimg.cc/qMgX4Y9v/IMG-0519.jpg" alt="Biến Mất Vì Hết Hi Vọng">
+                        <div class="card-overlay"><h3>Biến Mất Vì Hết Hi Vọng</h3><span><i class="fas fa-radiation"></i> Bom Tấn</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="movie-category">
+                <div class="category-header">
+                    <div class="cat-symbol sym-scifi"><i class="fas fa-globe"></i></div>
+                    <h2 class="txt-scifi">Hot Tìm Kiếm</h2>
+                </div>
+                <div class="movie-row">
+                    <div class="movie-card" onclick="openPlayer('Là Con Của Gia Tộc')">
+                        <img src="https://i.postimg.cc/SNv0xBR9/IMG_0525.jpg" alt="Là Con Của Gia Tộc">
+                        <div class="card-overlay"><h3>Là Con Của Gia Tộc</h3><span><i class="fas fa-meteor"></i> Viễn Tưởng</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Bị Hoa Khôi Lừa Dối')">
+                        <img src="https://i.postimg.cc/pTJbVy5X/IMG_0524.jpg" alt="Bị Hoa Khôi Lừa Dối">
+                        <div class="card-overlay"><h3>Bị Hoa Khôi Lừa Dối</h3><span><i class="fas fa-atom"></i> Độc Quyền</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Mối Tình Đầy Thú Vị Của Tôi')">
+                        <img src="https://i.postimg.cc/wMFp236H/IMG_0523.jpg" alt="Mối Tình Đầy Thú Vị Của Tôi">
+                        <div class="card-overlay"><h3>Mối Tình Đầy Thú Vị Của Tôi</h3><span><i class="fas fa-rocket"></i> Đang Hot</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Ăn Ớt Cùng Thiếu Gia')">
+                        <img src="https://i.postimg.cc/vH3YL2BQ/IMG_0522.jpg" alt="Ăn Ớt Cùng Thiếu Gia">
+                        <div class="card-overlay"><h3>Ăn Ớt Cùng Thiếu Gia</h3><span><i class="fas fa-satellite"></i> Mới Ra Mắt</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tự Hiểu Để Được Thương')">
+                        <img src="https://i.postimg.cc/s2tDGB2t/IMG_0521.jpg" alt="Tự Hiểu Để Được Thương">
+                        <div class="card-overlay"><h3>Tự Hiểu Để Được Thương</h3><span><i class="fas fa-user-astronaut"></i> Siêu Phẩm</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Lang Thang Để Mưu Sinh')">
+                        <img src="https://i.postimg.cc/qM0qGCxP/IMG_0520.jpg" alt="Lang Thang Để Mưu Sinh">
+                        <div class="card-overlay"><h3>Lang Thang Để Mưu Sinh</h3><span><i class="fas fa-globe"></i> Nổi Bật</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="movie-category" style="padding-bottom: 80px;">
+                <div class="category-header">
+                    <div class="cat-symbol sym-asian"><i class="fas fa-leaf"></i></div>
+                    <h2 class="txt-asian">Hay Cuốn</h2>
+                </div>
+                <div class="movie-row">
+                    <div class="movie-card" onclick="openPlayer('Yếu Lòng Với Em Yêu')">
+                        <img src="https://i.postimg.cc/W3GF2m7J/IMG_0531.jpg" alt="Yếu Lòng Với Em Yêu">
+                        <div class="card-overlay"><h3>Yếu Lòng Với Em Yêu</h3><span><i class="fas fa-heart"></i> Tình Cảm</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Mang Đạo Cụ Quay Phim Về')">
+                        <img src="https://i.postimg.cc/vBrgQ7vx/IMG_0530.jpg" alt="Mang Đạo Cụ Quay Phim Về">
+                        <div class="card-overlay"><h3>Mang Đạo Cụ Quay Phim Về</h3><span><i class="fas fa-video"></i> Hậu Trường</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tôi Lại Bị Nhặt Về')">
+                        <img src="https://i.postimg.cc/3RX4KjZ4/IMG_0529.jpg" alt="Tôi Lại Bị Nhặt Về">
+                        <div class="card-overlay"><h3>Tôi Lại Bị Nhặt Về</h3><span><i class="fas fa-box-open"></i> Hài Hước</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Vợ Tôi Bất Tỉnh Vì Rượu')">
+                        <img src="https://i.postimg.cc/ZR8BTPLd/IMG_0528.jpg" alt="Vợ Tôi Bất Tỉnh Vì Rượu">
+                        <div class="card-overlay"><h3>Vợ Tôi Bất Tỉnh Vì Rượu</h3><span><i class="fas fa-wine-glass-alt"></i> Kịch Tính</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Em Gái Bị Hãm Hại')">
+                        <img src="https://i.postimg.cc/wjrsFjv3/IMG_0527.jpg" alt="Em Gái Bị Hãm Hại">
+                        <div class="card-overlay"><h3>Em Gái Bị Hãm Hại</h3><span><i class="fas fa-exclamation-triangle"></i> Tâm Lý</span></div>
+                    </div>
+                    <div class="movie-card" onclick="openPlayer('Tôi Bị Đọc Tâm Trí')">
+                        <img src="https://i.postimg.cc/t4JxhxXq/IMG_0526.jpg" alt="Tôi Bị Đọc Tâm Trí">
+                        <div class="card-overlay"><h3>Tôi Bị Đọc Tâm Trí</h3><span><i class="fas fa-brain"></i> Siêu Nhiên</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-intro-wrapper">
+                <div class="admin-intro-box">
+                    <div class="intro-avatar"><i class="fas fa-crown"></i></div>
+                    <div class="intro-content">
+                        <h2 class="intro-title">Vài Lời Ngỏ Từ <span class="highlight-primary">Admin</span></h2>
+                        <p>Chào mừng bạn đến với thiên đường giải trí <strong>chunhatpham.net</strong> – nền tảng chuyên cung cấp <span class="highlight-white">phim truyện hoạt hình & truyện tranh Audio Vietsub Trung Quốc</span> hàng đầu! Tại đây, chúng tôi mang đến một thế giới cảm xúc đa dạng: từ những bộ <span class="highlight-gold">ngôn tình ngọt ngào</span>, <span class="highlight-blue">ngược tâm đau khổ</span>, cho đến những câu chuyện tình cảm sâu sắc, dằn vặt hay nhất...</p>
+                        <p>Những danh sách phim bạn vừa lướt qua phía trên chính là các siêu phẩm <strong>được cộng đồng xem nhiều nhất và yêu thích nhất</strong>. Web tự hào sở hữu <span class="highlight-white">kho tàng khổng lồ chứa hầu hết tất cả các tác phẩm thuộc dòng phim ảnh & audio Trung Quốc</span>. Bạn chỉ cần gõ tên vào thanh tìm kiếm là sẽ ra ngay! Đặc biệt, mọi bộ truyện trên web đều được cập nhật <strong>FULL định dạng từ Audio đến Video sắc nét</strong>.</p>
+                        <p>Tôi là <span class="admin-name">chunhatpham</span> — vừa là Admin, vừa là người bạn đồng hành cùng bạn trên hành trình săn lùng những bộ phim mới và hay nhất. Chúng tôi luôn nỗ lực cập nhật từng giờ để mang lại sự thoải mái tuyệt đối cho khán giả. Nếu bạn có bất kỳ thắc mắc nào, hoặc muốn <span class="highlight-gold">đề xuất làm thêm bộ phim mới</span>, đừng ngần ngại <a href="#" onclick="openTab('tab-contact')" class="contact-link">liên hệ cho Ad</a> để được hỗ trợ nhiệt tình nhé!</p>
+                        <p class="intro-closing">
+                            Chúc bạn luôn có những trải nghiệm xem phim vui vẻ và thoải mái nhất tại đây.<br>
+                            <span class="highlight-primary" style="font-size: 1.2em; display: inline-block; margin-top: 10px;">Chân thành cảm ơn những khán giả thân mến của tôi! ❤️</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group-section">
+                <div class="group-header-center">
+                    <div class="cat-symbol" style="background: linear-gradient(135deg, #00c6ff, #0072ff);"><i class="fab fa-telegram-plane"></i></div>
+                    <h2 class="txt-action" style="font-size: 28px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">Group Cập Nhật Truyện</h2>
+                </div>
+                <div class="group-row">
+                    <a href="https://t.me/nghechuyenla" target="_blank" class="movie-card group-card">
+                        <img src="https://i.postimg.cc/K8ctYWKg/0C4CA49A_52A1_42BE_8D56_A0AD22F32C00.png" alt="Group Chuyện Lạ Thường">
+                        <div class="card-overlay"><h3>Group Chuyện Lạ Thường</h3><span><i class="fas fa-users"></i> 16N Thành Viên</span></div>
+                    </a>
+                    <a href="https://t.me/chuyenlavip" target="_blank" class="movie-card group-card group-card-vip">
+                        <img src="https://i.postimg.cc/g2M8LK8F/27E3E85A_4CE7_41B7_BA67_C0DA0EDAF5A0.png" alt="Group Chuyện Lạ VIP">
+                        <div class="card-overlay"><h3 style="color: #f5c518;">Group Chuyện Lạ VIP <i class="fas fa-crown"></i></h3><span><i class="fas fa-gem"></i> 2N Thành Viên VIP</span></div>
+                    </a>
+                </div>
+            </div>
+
+            <footer class="main-footer">
+                <div class="footer-grid">
+                    <div class="footer-about">
+                        <h4>chunhatpham.net</h4>
+                        <p>Xem Phim ChuNhatpHam chất lượng cao, hỗ trợ phụ đề tiếng Việt, thuyết minh và lồng tiếng. Kho phim đa dạng với hơn <strong>10.000+ tựa phim</strong>, liên tục cập nhật các thể loại Hot và Mới Nhất.</p>
+                        <p>Website có giao diện thân thiện và trực quan, dễ sử dụng, tốc độ tải nhanh. Luôn cập nhật phim mới mỗi ngày, mang đến trải nghiệm giải trí tuyệt vời cho mọi người yêu phim.</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Trợ giúp</h4>
+                        <ul>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> Điều khoản chung</a></li>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> Chính sách riêng tư</a></li>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> Sitemap</a></li>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> RSS Feed</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-links">
+                        <h4>PhimNet</h4>
+                        <ul>
+                            <li><a href="#" onclick="openTab('tab-home')"><i class="fas fa-angle-right"></i> Trang chủ</a></li>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> Giới thiệu</a></li>
+                            <li><a href="#"><i class="fas fa-angle-right"></i> FAQ</a></li>
+                            <li><a href="#" onclick="openTab('tab-contact')"><i class="fas fa-angle-right"></i> Liên hệ</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net - Nền Tảng Xem Phim Đỉnh Cao. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-hot" class="tab-content">
+            <div class="page-padding">
+                <h2 class="section-title" style="color: #ff4e00; border-left-color: #ff4e00;">
+                    <i class="fas fa-fire"></i> Bảng Xếp Hạng Phim Hot Nhất
+                </h2>
+                <div class="movie-grid" id="hot-movie-grid">
+                    </div>
+                <div class="loading-more-wrapper">
+                    <div class="loading-more-pill"><i class="fas fa-spinner"></i> Hệ thống đang cập nhật thêm phim mới...</div>
+                </div>
+                <footer class="main-footer">
+                    <div class="footer-grid">
+                        <div class="footer-about">
+                            <h4>chunhatpham.net</h4>
+                            <p>Xem Phim ChuNhatpHam chất lượng cao, hỗ trợ phụ đề tiếng Việt, thuyết minh và lồng tiếng. Kho phim đa dạng với hơn <strong>10.000+ tựa phim</strong>, liên tục cập nhật các thể loại Hot và Mới Nhất.</p>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Trợ giúp</h4>
+                            <ul>
+                                <li><a href="#"><i class="fas fa-angle-right"></i> Điều khoản chung</a></li>
+                                <li><a href="#"><i class="fas fa-angle-right"></i> Chính sách riêng tư</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-links">
+                            <h4>PhimNet</h4>
+                            <ul>
+                                <li><a href="#" onclick="openTab('tab-home')"><i class="fas fa-angle-right"></i> Trang chủ</a></li>
+                                <li><a href="#" onclick="openTab('tab-contact')"><i class="fas fa-angle-right"></i> Liên hệ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-bottom-line">© 2026 ChuNhatpHam.net - Nền Tảng Xem Phim Đỉnh Cao. All rights reserved.</div>
+                </footer>
+            </div>
+        </section>
+
+        <section id="tab-single" class="tab-content">
+            <div class="single-hero-fullscreen">
+                <div class="single-bg"></div>
+                <a href="https://www.tiktok.com/@chunhatpham?_r=1&_t=ZS-94CUjQNkdlA" target="_blank" class="explore-wrapper">
+                    <h2 class="explore-text">Khám Phá Ngay</h2>
+                    <div class="circle-glow-box">
+                        <img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5_6F3B_4815_8759_7ED0A77B8DBB.png" alt="Khám phá TikTok ChuNhatpHam" class="explore-avatar">
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section id="tab-series" class="tab-content">
+            <div class="page-padding">
+                <h2 class="section-title" style="color: #00c6ff; border-left-color: #00c6ff;">
+                    <i class="fas fa-layer-group"></i> Tuyển Tập Phim Bộ Đặc Sắc
+                </h2>
+                <div id="series-container-wrapper">
+                    </div>
+            </div>
+            <div class="loading-more-wrapper">
+                <div class="loading-more-pill"><i class="fas fa-spinner"></i> Hệ thống đang cập nhật thêm phim mới...</div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-grid">
+                    <div class="footer-about">
+                        <h4>chunhatpham.net</h4>
+                        <p>Xem Phim ChuNhatpHam chất lượng cao...</p>
+                    </div>
+                </div>
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-list" class="tab-content">
+            <div class="page-padding">
+                <h2 class="section-title" style="color: #8e2de2; border-left-color: #8e2de2;">
+                    <i class="fas fa-list-ul"></i> Danh Sách Phim
+                </h2>
+                <div class="movie-grid" id="paged-movie-grid">
+                    </div>
+                <div class="pagination-container" id="pagination-wrapper">
+                    </div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-history" class="tab-content">
+            <div class="page-padding">
+                <div class="history-wrapper">
+                    <h2 class="section-title" style="margin-bottom: 20px;"><i class="fas fa-history"></i> Nhật Ký Hoạt Động</h2>
+                    <div class="history-filter-tabs">
+                        <button class="hist-tab-btn active" onclick="filterHistory('all', this)">Tất Cả</button>
+                        <button class="hist-tab-btn" onclick="filterHistory('watch', this)">Lịch Sử Xem</button>
+                        <button class="hist-tab-btn" onclick="filterHistory('transaction', this)">Giao Dịch Ví</button>
+                    </div>
+                    <div class="history-list" id="main-history-list">
+                        <p style="text-align:center; color:#888; padding: 30px; font-style: italic;">Đang tải dữ liệu...</p>
+                    </div>
+                </div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-wallet" class="tab-content">
+            <div class="page-padding" style="display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
+                <h2 class="section-title" style="align-self: flex-start;"><i class="fas fa-wallet"></i> Quản Lý Ví</h2>
+                
+                <div class="vip-wallet-card" style="width: 100%;">
+                    <div class="wallet-balance-box">
+                        <p>Số dư khả dụng</p>
+                        <div class="main-balance"><span id="main-wallet-balance">0</span><span>VNĐ</span></div>
+                    </div>
+                    <div class="wallet-footer">ID: KH-120593 • USER***.**</div>
+                </div>
+
+                <div style="width: 100%; max-width: 800px; align-self: center;">
+                    <h3 style="color: white; margin-bottom: 20px; font-size: 20px;">Chọn phương thức nạp tiền:</h3>
+                    <div class="deposit-methods-grid">
+                        <div class="deposit-card" onclick="openDepositModal('manual')"><i class="fas fa-university"></i><h3>Chuyển Khoản Thủ Công</h3><p>Xử lý trong 1-3 phút.</p></div>
+                        <div class="deposit-card" onclick="openDepositModal('qr')"><i class="fas fa-qrcode"></i><h3>Quét Mã QR</h3><p>Nhanh chóng, chính xác 100%.</p></div>
+                    </div>
+
+                    <div class="wallet-event-section">
+                        <h3 class="event-title"><i class="fas fa-gift"></i> SỰ KIỆN NẠP THẺ KHỦNG</h3>
+                        <p class="event-desc">Tham gia ngay chuỗi sự kiện đặc biệt! Nạp mốc càng cao, tỷ lệ khuyến mãi càng lớn!</p>
+                        <div class="event-image-wrapper">
+                            <img src="https://i.postimg.cc/GtwzYLWX/B0624652-3225-4FFE-824C-2FBCDBA5CECE.png" alt="Sự kiện nạp tiền">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-account" class="tab-content">
+            <div class="page-padding" style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+                <div id="auth-section" style="width: 100%; max-width: 550px; padding: 40px 30px;">
+                    <div class="auth-warning-box">
+                        <div class="warning-header"><i class="fas fa-exclamation-triangle"></i> LƯU Ý TỪ CHUNHATPHAM</div>
+                        <p><strong>Lưu ý cực kỳ quan trọng:</strong> Số điện thoại hoặc Gmail là phương thức xác thực duy nhất.</p>
+                        <p class="thank-you-text">Cảm ơn bạn đã lắng nghe, chân thành cảm ơn! ❤️</p>
+                    </div>
+
+                    <div class="auth-tabs">
+                        <div class="auth-tab active" id="tab-btn-login" onclick="switchAuthTab('login')">ĐĂNG NHẬP</div>
+                        <div class="auth-tab" id="tab-btn-register" onclick="switchAuthTab('register')">ĐĂNG KÝ</div>
+                    </div>
+
+                    <div id="form-login">
+                        <input type="text" id="login-username" class="auth-input" placeholder="Tên tài khoản *" required>
+                        <input type="password" id="login-password" class="auth-input" placeholder="Mật khẩu *" required>
+                        <button class="auth-btn" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Đăng Nhập Ngay</button>
+                    </div>
+
+                    <div id="form-register" style="display: none;">
+                        <input type="text" id="reg-contact" class="auth-input" placeholder="Số điện thoại hoặc Email (Bắt buộc) *" required>
+                        <input type="password" id="reg-password" class="auth-input" placeholder="Mật khẩu *" required>
+                        <input type="password" id="reg-confirm-password" class="auth-input" placeholder="Xác nhận mật khẩu *" required>
+                        <input type="text" id="reg-refcode" class="auth-input" placeholder="Mã giới thiệu (Không bắt buộc)">
+                        <button class="auth-btn" onclick="handleRegisterStep1()"><i class="fas fa-arrow-right"></i> Tiếp Tục</button>
+                    </div>
+
+                    <div id="form-set-username" class="success-pop" style="display: none; text-align: center;">
+                        <i class="fas fa-shield-check" style="font-size: 60px; color: #00e676; margin-bottom: 15px;"></i>
+                        <h3 style="color: white; font-size: 24px; text-transform: uppercase; margin-bottom: 10px;">Xác Thực Thành Công</h3>
+                        <p style="color: #ccc; font-size: 14.5px; margin-bottom: 25px;">Hãy tạo cho mình một <strong>Tên Tài Khoản</strong> thật ngầu nhé.</p>
+                        
+                        <div class="username-input-wrapper">
+                            <input type="text" id="reg-username" class="auth-input" placeholder="Nhập tên tài khoản của bạn *" required style="padding-right: 65px; border-color: #00c6ff; text-align: center; font-weight: bold; font-size: 18px;">
+                            <button class="btn-dice" onclick="rollRandomUsername()" title="Lắc Xúc Xắc Random Tên"><i class="fas fa-dice"></i></button>
+                        </div>
+                        <button class="auth-btn" style="background: linear-gradient(45deg, #00c6ff, #0072ff);" onclick="handleRegisterFinal()"><i class="fas fa-rocket"></i> Hoàn Tất Đăng Ký</button>
+                    </div>
+                </div>
+
+                <div id="profile-section" style="width: 100%; max-width: 600px; display: none; padding: 40px;">
+                    <div style="display: flex; align-items: center; gap: 25px; margin-bottom: 30px; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 30px;">
+                        <div style="width: 90px; height: 90px; border-radius: 50%; background: rgba(0, 198, 255, 0.1); border: 2px solid #00c6ff; display: flex; justify-content: center; align-items: center; font-size: 35px; color: #00c6ff;"><i class="fas fa-user-ninja"></i></div>
+                        <div>
+                            <h2 id="prof-username" style="color: white; font-size: 32px; margin-bottom: 5px;">USERNAME</h2>
+                            <p style="color: #aaa; font-size: 15px;">Thành viên hệ thống <span style="color: #f5c518;"><i class="fas fa-crown"></i> VIP</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="review-inputs-row" style="margin-bottom: 35px;">
+                        <label style="color: #bbb; font-size: 14px; margin-bottom: -10px;"><i class="fas fa-address-card"></i> Thông tin bảo mật (SĐT/Email):</label>
+                        <input type="text" id="prof-contact" class="auth-input" readonly style="background: rgba(0,0,0,0.4); color: #00e676; font-weight: bold;">
+                        
+                        <label style="color: #bbb; font-size: 14px; margin-bottom: -10px;"><i class="fas fa-link"></i> Mã giới thiệu đã sử dụng:</label>
+                        <input type="text" id="prof-ref" class="auth-input" readonly style="background: rgba(0,0,0,0.4); color: #ccc;">
+                    </div>
+                    
+                    <button class="auth-btn" style="background: rgba(229, 9, 20, 0.1); border: 2px solid #e50914; color: #ff4e00; box-shadow: none;" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Đăng Xuất An Toàn</button>
+                </div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+
+        <section id="tab-contact" class="tab-content">
+            <div class="page-padding">
+                <h2 class="section-title"><i class="fas fa-headset"></i> Trung Tâm Trợ Giúp & Liên Hệ</h2>
+                
+                <div class="contact-layout-grid">
+                    <div class="contact-left-col">
+                        <div class="vip-wallet-card" style="width: 100%; padding: 30px; margin-bottom: 0;">
+                            <h4 style="color: white; font-size: 20px; margin-bottom: 25px;"><i class="fas fa-paper-plane" style="color: var(--primary-color);"></i> Gửi yêu cầu hỗ trợ</h4>
+                            
+                            <div class="review-inputs-row" style="margin-bottom: 15px;">
+                                <input type="text" id="support-name" class="auth-input" placeholder="Họ và tên hoặc Username *" style="margin-bottom: 15px;">
+                                <input type="email" id="support-email" class="auth-input" placeholder="Email / Số điện thoại liên hệ *" style="margin-bottom: 15px;">
+                            </div>
+
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="support-image" accept="image/*" class="file-upload-input" onchange="updateFileName(this)">
+                                <label for="support-image" class="file-upload-label" id="support-image-label"><i class="fas fa-cloud-upload-alt"></i> Tải lên ảnh minh họa</label>
+                            </div>
+
+                            <textarea id="support-content" placeholder="Mô tả chi tiết vấn đề..." style="width: 100%; height: 120px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; margin-bottom: 20px;"></textarea>
+                            <button class="auth-btn" onclick="submitSupportTicket()"><i class="fas fa-paper-plane"></i> Gửi Tin Nhắn</button>
+
+                            <div class="direct-contact-row">
+                                <a href="https://t.me/nhatpham27" target="_blank" class="agent-btn btn-tele"><i class="fas fa-user-headset"></i><span>Chat Qua Telegram</span></a>
+                                <a href="mailto:changdinhanh@gmail.com" class="agent-btn btn-mail"><i class="fas fa-envelope-open-text"></i><span>Gửi Email Trực Tiếp</span></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-right-col wiki-section">
+                        <div class="wiki-card wiki-red">
+                            <div class="wiki-header"><i class="fas fa-bell"></i><h3>Thông Báo Mới Nhất</h3></div>
+                            <p>Chào mừng đến với phiên bản nâng cấp của ChuNhatPham.net.</p>
+                        </div>
+                        <div class="wiki-card wiki-blue">
+                            <div class="wiki-header"><i class="fas fa-film"></i><h3>Kho Phim & Sản Phẩm</h3></div>
+                            <p>Website sở hữu bản quyền phát sóng hơn 10.000+ tựa phim.</p>
+                        </div>
+                        <div class="wiki-card wiki-green">
+                            <div class="wiki-header"><i class="fas fa-wallet"></i><h3>Hướng Dẫn Nạp</h3></div>
+                            <p>Hỗ trợ Chuyển khoản ngân hàng và Quét mã QR tự động.</p>
+                        </div>
+                        <div class="wiki-card wiki-yellow">
+                            <div class="wiki-header"><i class="fas fa-shield-alt"></i><h3>Lưu Ý Quan Trọng</h3></div>
+                            <p>Tuyệt đối KHÔNG chia sẻ mật khẩu hoặc mã OTP.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="main-footer">
+                <div class="footer-bottom-line">© 2026 ChuNhatpHam.net. All rights reserved.</div>
+            </footer>
+        </section>
+    </main>
+
+    <div id="floating-ads-container">
+        <div class="floating-ad-item" id="fad-3">
+            <div class="ad-logo-label">MXH.Net</div>
+            <span class="fad-close" onclick="closeAdSequential('fad-3', 'fad-2', event)">x</span>
+            <a href="https://changdinhanh-cyber.github.io/MXH.Net/" target="_blank" class="fad-link"><img src="https://i.postimg.cc/GpV3RVDn/02D53A54-31E4-454F-8EDA-3F83E78F6FFE.png" alt="Quảng cáo"></a>
+        </div>
+        <div class="floating-ad-item" id="fad-2">
+            <div class="ad-logo-label">MMOaucot</div>
+            <span class="fad-close" onclick="closeAdSequential('fad-2', 'fad-1', event)">x</span>
+            <a href="https://changdinhanh-cyber.github.io/NetPhim/#" target="_blank" class="fad-link"><img src="https://i.postimg.cc/4N7Khvfd/3E68FA99-676A-4FB2-879B-28F04E360582.png" alt="Quảng cáo"></a>
+        </div>
+        <div class="floating-ad-item" id="fad-1">
+            <div class="ad-logo-label">GoGo Lite</div>
+            <span class="fad-close" onclick="closeAdSequential('fad-1', null, event)">x</span>
+            <a href="https://changdinhanh-cyber.github.io/gogolite-V22.w99-vip.com/" target="_blank" class="fad-link"><img src="https://i.postimg.cc/d126vMfC/BF01CDB9-0890-4798-8705-206AD08DAD51.png" alt="Quảng cáo"></a>
+        </div>
+    </div>
+
+    <div id="top-right-event-banner">
+        <div class="event-banner-label"><i class="fas fa-gift"></i> Khuyến Mãi Nạp</div>
+        <span class="event-close-btn" onclick="closeTopRightEvent(event)">x</span>
+        <div class="event-banner-link" onclick="goToWalletAndClose(event)"><img src="https://i.postimg.cc/cLN0FfSx/AB4CA319-8030-4D8F-8D78-0D08A146A67A.png" alt="Sự Kiện"></div>
+    </div>
+
+    <div class="vip-premium-overlay" id="premium-modal">
+        <div class="vip-premium-box">
+            <button class="modal-close-icon" onclick="closePremiumModal()"><i class="fas fa-times"></i></button>
+            <div class="prem-header">
+                <i class="fas fa-crown"></i>
+                <h2>Gói Hội Viên Premium</h2>
+            </div>
+            <div class="prem-grid">
+                <div class="prem-card active" onclick="selectPrem(this, 1, 70000, 'bronze')"><div class="prem-dur">1 Tháng</div><div class="prem-price">70.000đ</div><div class="prem-desc">Huy hiệu Đồng</div></div>
+                <div class="prem-card" onclick="selectPrem(this, 3, 180000, 'silver')"><span class="badge">GIẢM 15%</span><div class="prem-dur">3 Tháng</div><div class="prem-price">180.000đ</div><div class="prem-desc">Huy hiệu Bạc</div></div>
+                <div class="prem-card" onclick="selectPrem(this, 6, 320000, 'gold')"><span class="badge">GIẢM 25%</span><div class="prem-dur">6 Tháng</div><div class="prem-price">320.000đ</div><div class="prem-desc">Huy hiệu Vàng</div></div>
+                <div class="prem-card" onclick="selectPrem(this, 12, 550000, 'diamond')"><span class="badge">TIẾT KIỆM NHẤT</span><div class="prem-dur">1 Năm</div><div class="prem-price">550.000đ</div><div class="prem-desc">Huy hiệu Kim Cương</div></div>
+            </div>
+            <div id="prem-sum" style="text-align: center; color: white; margin-bottom: 20px; font-size: 18px; font-weight: bold;">Thanh toán: <span style="color: #f5c518;">70.000đ</span></div>
+            <button class="btn-buy-premium" onclick="confirmPurchasePremium()">Xác Nhận Đăng Ký</button>
+        </div>
+    </div>
+
+    <div id="mini-audio-player" class="mini-player-wrapper">
+        <button class="mini-player-close-top-right" onclick="closeMiniPlayer()"><i class="fas fa-times"></i></button>
+        <div class="player-progress-area" id="progress-area" onclick="seekFakeAudio(event)"><div class="player-progress-current" id="progress-current"></div></div>
+        <div class="player-main-content">
+            <div class="player-cover"><img id="mini-player-img" src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Cover"></div>
+            <div class="player-info">
+                <h4 id="mini-player-title">Tên bài đang phát...</h4>
+                <marquee class="player-scrolling-info" id="player-scrolling-info">SS1: Đang phát...</marquee>
+                <div class="player-time"><span id="time-current">00:00</span> / <span id="time-total">45:00</span></div>
+            </div>
+            <div class="player-controls">
+                <button class="ctrl-btn speed-btn" id="btn-speed" onclick="changeSpeed()">1x</button>
+                <button class="ctrl-btn" onclick="showNotification('info', 'Tập Trước', 'Chuyển!', 'Đóng')"><i class="fas fa-step-backward"></i></button>
+                <button class="ctrl-btn play-pause-btn" id="btn-play-pause" onclick="togglePlayPause()"><i class="fas fa-pause"></i></button>
+                <button class="ctrl-btn" onclick="showNotification('info', 'Tập Tiếp', 'Chuyển!', 'Đóng')"><i class="fas fa-step-forward"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-install-banner" class="app-install-banner">
+        <div class="install-left" onclick="openInstallModal()">
+            <div class="install-icon-box"><i class="fas fa-cloud-download-alt"></i></div>
+            <div class="install-text-box"><h4>Cài đặt App ChuNhatPham</h4><p>Nhấn để xem hướng dẫn cài đặt</p></div>
+        </div>
+        <button class="install-close-btn" onclick="closeInstallBanner()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div id="app-install-modal" class="app-install-overlay">
+        <div class="app-install-box">
+            <button class="modal-close-icon" onclick="closeInstallModal()"><i class="fas fa-times"></i></button>
+            <div class="install-modal-header">
+                <div class="install-logo-header"><img src="https://i.postimg.cc/2S1MZ1vZ/E18A0AE5-6F3B-4815-8759-7ED0A77B8DBB.png" alt="Logo"></div>
+                <h2>Hướng Dẫn Cài Đặt</h2>
+            </div>
+            <div class="install-os-tabs">
+                <button class="os-tab active" onclick="switchInstallTab('ios')"><i class="fab fa-apple"></i> iPhone</button>
+                <button class="os-tab" onclick="switchInstallTab('android')"><i class="fab fa-android" style="color: #a4c639;"></i> Android</button>
+            </div>
+            <div id="install-tab-ios" class="install-tab-content active">
+                <div class="install-img-wrapper"><img src="https://i.postimg.cc/NjNXYFys/0304DFD8_1FCE_462F_8876_6D15F436D8B0.jpg" alt="IOS"></div>
+                <div class="install-success-msg"><i class="fas fa-check-circle"></i> Ứng dụng sẽ có ở màn hình chính</div>
+            </div>
+            <div id="install-tab-android" class="install-tab-content">
+                <div class="install-img-wrapper"><img src="https://i.postimg.cc/zGdh5vLJ/896BF7FC_0172_4535_9A3A_43FF200D2247.jpg" alt="Android"></div>
+                <div class="install-success-msg" style="color: #a4c639; background: rgba(164, 198, 57, 0.1); border-color: rgba(164, 198, 57, 0.3);"><i class="fas fa-check-circle"></i> Ứng dụng sẽ có ở màn hình chính</div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="real-audio-player" preload="metadata"></audio>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
