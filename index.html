@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>zun968</title>
+    
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="manifest" href="manifest.json">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zun968">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/QdGb0288/304BD327-4DB7-471A-BF58-B4C6DD5F0C8D.png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="itemPurchasePopup" class="item-purchase-popup">
+        <div class="purchase-icon-box" id="purchasedIcon"><i class="fa-solid fa-gift"></i></div>
+        <div class="purchase-title">Mua thành công!</div>
+        <div class="purchase-name" id="purchasedName">Tên vật phẩm</div>
+        <p class="purchase-desc">Vật phẩm đã được chuyển vào Túi đồ.<br>Bạn có thể sử dụng ngay bây giờ.</p>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-main" onclick="closePurchasePopup()" style="flex:1; background: #333;">Đóng</button>
+            <button class="btn-main" onclick="goToInventory()" style="flex:1; background: var(--ios-accent); color:#000;">Túi đồ</button>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <div id="introPopup" class="intro-popup-overlay show">
+        <div class="intro-popup">
+            <div class="intro-icon"><i class="fa-solid fa-bell"></i></div>
+            <h3 style="color: #fff; margin-bottom: 10px;">Lưu ý quan trọng</h3>
+            <p style="color: #8e8e93; font-size: 0.9rem; line-height: 1.5; margin-bottom: 25px;">
+                Để bảo vệ tài sản và sử dụng tính năng <b>Nạp/Rút</b>, bạn vui lòng <b>Đăng ký</b> hoặc <b>Đăng nhập</b> tài khoản.<br><br>
+                Tài khoản khách sẽ bị hạn chế tính năng.
+            </p>
+            <button class="btn-main" onclick="closeIntroPopup()" style="width: 100%; background: var(--ios-blue);">ĐÃ HIỂU</button>
+        </div>
+    </div>
+
+    <div id="loginModal" class="auth-modal">
+        <div class="auth-header">
+            <span>Đăng Nhập</span>
+            <i class="fa-solid fa-xmark" onclick="closeAuthModal('login')" style="cursor: pointer;"></i>
+        </div>
+        <div class="auth-form">
+            <div class="form-group">
+                <label class="form-label">Số điện thoại hoặc Email</label>
+                <input type="text" id="loginId" class="form-input" placeholder="Nhập tài khoản...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" id="loginPass" class="form-input" placeholder="Nhập mật khẩu...">
+            </div>
+            <button class="btn-main" onclick="processLogin()" style="width: 100%; margin-top: 10px; background: var(--ios-blue);">ĐĂNG NHẬP</button>
+        </div>
+    </div>
+
+    <div id="registerModal" class="auth-modal">
+        <div class="auth-header">
+            <span>Đăng Ký</span>
+            <i class="fa-solid fa-xmark" onclick="closeAuthModal('register')" style="cursor: pointer;"></i>
+        </div>
+        <div class="auth-form">
+            <div class="form-group">
+                <label class="form-label">1. Số điện thoại / Email (Dùng để đăng nhập)</label>
+                <input type="text" id="regId" class="form-input" placeholder="Nhập SĐT hoặc Email...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">2. Mật khẩu bảo mật</label>
+                <input type="password" id="regPass" class="form-input" placeholder="Tự tạo mật khẩu...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">3. Mã Giới Thiệu (Bắt buộc)</label>
+                <input type="text" id="regRef" class="form-input" placeholder="Nhập mã giới thiệu..." style="text-transform: uppercase;">
+                <div style="font-size: 0.7rem; color: #8e8e93; margin-top: 5px;">Mã bắt buộc phải đúng để kích hoạt.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">4. ID TikTok (Để xác minh)</label>
+                <input type="text" id="regTiktok" class="form-input" placeholder="Nhập ID TikTok...">
+            </div>
+            <button class="btn-main" onclick="processRegister()" style="width: 100%; margin-top: 10px; background: var(--ios-accent); color: #000;">ĐĂNG KÝ NGAY</button>
+        </div>
+    </div>
+
+    <div id="setNameModal" class="auth-modal" style="justify-content: center; background: rgba(0,0,0,0.9);">
+        <div style="padding: 30px; text-align: center;">
+            <i class="fa-solid fa-user-tag" style="font-size: 3rem; color: var(--ios-green); margin-bottom: 20px;"></i>
+            <h3 style="color: #fff; margin-bottom: 10px;">Đặt tên nhân vật</h3>
+            <p style="color: #888; margin-bottom: 20px;">Tên này sẽ hiển thị trong game và bảng xếp hạng.</p>
+            <input type="text" id="charNameInput" class="form-input" placeholder="Ví dụ: Đại Gia Phố Núi" style="text-align: center; font-weight: bold; margin-bottom: 20px;">
+            <button class="btn-main" onclick="completeRegistration()" style="width: 100%; background: var(--ios-green); color: #000;">HOÀN TẤT</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo-container" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 4px 12px; border-radius: 20px;">
+    <div class="app-logo-wrapper">
+        <img src="https://i.postimg.cc/QdGb0288/304BD327-4DB7-471A-BF58-B4C6DD5F0C8D.png" alt="Zun968 Logo">
+    </div>
+    <div class="logo" style="font-size: 1.2rem;">zun968</div>
+</div>
+        <div class="header-right">
+            <div class="balance" onclick="navigate(event, 'page-wallet')" style="cursor: pointer; transition: 0.2s;">
+                <i class="fa-solid fa-wallet" style="margin-right: 5px;"></i>
+                <span id="displayBalance">0 VND</span>
+            </div>
+            <div class="notification-btn" id="openNoti">
+                <i class="fa-solid fa-bell"></i>
+                <div class="badge"></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="marquee-container">
+        <div class="marquee-text">ZUN968 đã cập nhật Game Máy Bay và Tài Xỉu! Chơi ngay để nhận thưởng lớn. Chúc bạn may mắn!</div>
+    </div>
+
+    <div class="floating-container">
+        <div class="bubble btn-support" id="btnOpenSupport"><i class="fa-solid fa-headset"></i><span>Hỗ trợ</span></div>
+        <div class="bubble btn-robot" id="robotBtn"><i class="fa-solid fa-robot"></i><span>Robot</span></div>
+    </div>
+
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header">
+            <div id="openRobotDetail" style="cursor: pointer;"><i class="fa-solid fa-robot"></i> AI Assistant</div>
+            <i class="fa-solid fa-xmark" id="closeChat" style="cursor: pointer;"></i>
+        </div>
+        <div class="chat-body" id="chatBody"><div class="msg bot">Chào bạn! Tôi là Robot ZUN968. Bạn cần giúp gì không?</div></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
+            <button id="sendBtn" class="btn-main" style="padding: 5px 15px;"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    
+    <div class="win-popup" id="winPopup">
+        <div class="win-icon"><i class="fa-solid fa-trophy"></i></div>
+        <h2 style="color:var(--ios-accent); margin-bottom:10px;">CHÚC MỪNG!</h2>
+        <p id="winPopupMsg" style="font-size:1.1rem; margin-bottom:20px;">Bạn đã nhận được 10,000 VND</p>
+        <button class="btn-main" onclick="closeWinPopup()" style="width:100%; background:var(--ios-green); color:#000;">TUYỆT VỜI</button>
+    </div>
+
+    <div class="notification-tab" id="notiTab">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3>Thông báo hệ thống</h3><i class="fa-solid fa-circle-xmark" id="closeNoti" style="font-size:1.5rem; cursor:pointer;"></i>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--ios-accent);">
+            <p style="color:var(--ios-accent); font-weight:bold;">Sự kiện v22-Ultimate</p>
+            <p>Ra mắt hệ thống Level và XP. Mỗi nhiệm vụ hoàn thành sẽ cộng thêm XP cho bạn!</p>
+        </div>
+    </div>
+
+    <div class="robot-detail-tab" id="robotDetailTab">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="color:var(--ios-blue);">Thông tin AI</h3><i class="fa-solid fa-circle-xmark" id="closeRobotDetail" style="font-size:1.5rem; cursor:pointer;"></i>
+        </div>
+        <div style="text-align:center;">
+            <i class="fa-solid fa-robot" style="font-size:3rem; color:var(--ios-blue);"></i>
+            <h4>Robot Assistant v22</h4>
+            <p style="color:#8e8e93; margin-top:10px;">Đang hoạt động trên hệ thống w99gg.vn</p>
+        </div>
+    </div>
+
+    <div class="support-tab" id="supportTab">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3><i class="fa-solid fa-headset"></i> Hỗ trợ viên</h3>
+            <i class="fa-solid fa-circle-xmark" id="closeSupport" style="font-size:1.5rem; cursor:pointer;"></i>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--ios-red); background: rgba(255, 69, 58, 0.1);">
+            <h4 style="color: var(--ios-red); margin-bottom: 10px;">LƯU Ý QUAN TRỌNG</h4>
+            <p style="text-align: justify; font-size: 0.9rem; line-height: 1.5; color: #fff;">
+                Chúng tôi sẽ bảo mật tuyệt đối thông tin cá nhân của bạn và không làm ảnh hưởng đến trải nghiệm của bạn khi sử dụng app ZUN968.
+                <br><br>
+                Bạn vui lòng <b>không chia sẻ thông tin đoạn chat và thông tin tài khoản</b> của bản thân (kể cả chi tiết) cho ADMIN.
+                <br><br>
+                Bạn hãy cam kết và đồng ý điều kiện để liên hệ cho hỗ trợ viên.
+            </p>
+        </div>
+        <button class="btn-main" id="btnAgreeSupport" style="width: 100%; background: var(--ios-red); margin-top: 15px; font-weight: bold; box-shadow: 0 5px 15px rgba(255, 69, 58, 0.4);">
+            TÔI ĐỒNG Ý VÀ LIÊN HỆ
+        </button>
+    </div>
+
+    <div id="page-home" class="page-container active">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'h-tongquan', 'h-content')">Tổng quan</div>
+            <div class="sub-tab" onclick="switchTab(event, 'h-capvip', 'h-content')">Cấp VIP</div>
+            <div class="sub-tab" onclick="switchTab(event, 'h-luuy', 'h-content')">Lưu ý</div>
+        </div>
+        
+        <div id="h-tongquan" class="sub-content h-content active">
+            <div class="level-card">
+                <div class="level-badge"><span id="userLevelDisplay">1</span><span>LV</span></div>
+                <div class="level-info">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;">
+                        <span>Tiến trình Level</span>
+                        <span id="expText">0 / 1000 EXP</span>
+                    </div>
+                    <div class="exp-bar-bg"><div class="exp-bar-fill" id="expFill"></div></div>
+                </div>
+            </div>
+            <div class="event-promo-card" onclick="navigate(event, 'page-wallet')">
+                <img src="https://i.postimg.cc/XqYKyWgM/EDA1D2FF-DD5B-4DAB-9C7D-F6A7E34F494E.png" alt="Sự kiện nạp" class="event-promo-img">
+                <div class="event-promo-content">
+                    <div class="event-promo-text">
+                        <h4><i class="fa-solid fa-gift fa-bounce"></i> Siêu Sự Kiện Nạp</h4>
+                        <p>X2 Tài khoản ngay hôm nay. Đừng bỏ lỡ!</p>
+                    </div>
+                    <div class="event-promo-btn">NẠP NGAY</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fa-solid fa-house"></i> Trang chủ</h3>
+                <p>Chào mừng bạn trở lại với ZUN968. Hãy xem các tab bên cạnh để biết thêm về Cấp VIP và Lưu ý bảo mật.</p>
+            </div>
+            
+            <div class="card">
+                <h3><i class="fa-solid fa-bullhorn"></i> Tin tức</h3>
+                <p>Hệ thống vừa cập nhật giao diện Sảnh Game mới cực đẹp!</p>
+            </div>
+
+            <div class="card" style="border-top: 4px solid var(--ios-blue);">
+                <h3><i class="fa-solid fa-server"></i> Giới thiệu hệ thống</h3>
+                <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.75rem;">
+                        <div style="display:flex; justify-content:space-between;"><span style="color:#8e8e93;">Server:</span><span style="font-weight:bold; color: #fff;">VN-S1 Premium</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span style="color:#8e8e93;">Trạng thái:</span><span style="font-weight:bold; color: var(--ios-green);">Hoạt động</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span style="color:#8e8e93;">Ping:</span><span style="font-weight:bold; color: var(--ios-green);">14ms</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span style="color:#8e8e93;">Version:</span><span style="font-weight:bold; color: var(--ios-accent);">v22.0.5 Ultimate</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="referralSection" style="border: 1px solid rgba(255, 219, 5, 0.3); background: linear-gradient(135deg, rgba(28,28,30,1) 0%, rgba(50,45,0,0.3) 100%);">
+                <h3><i class="fa-solid fa-users-viewfinder" style="color: var(--ios-accent);"></i> Giới thiệu bạn bè</h3>
+                <div style="background: rgba(255,255,255,0.08); border: 1px dashed var(--ios-accent); padding: 15px; border-radius: 15px; margin: 15px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-size: 0.65rem; color: #8e8e93; margin-bottom: 2px;">MÃ GIỚI THIỆU CỦA BẠN</span>
+                        <span style="font-size: 1.2rem; font-weight: 800; color: #fff; letter-spacing: 1px;" id="myRefCode">V22-....</span>
+                    </div>
+                    <button onclick="copyRefCode()" id="btnCopyRef" style="background: var(--ios-accent); color: #000; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">
+                        <i class="fa-regular fa-copy"></i> COPY
+                    </button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: rgba(50, 215, 75, 0.1); padding: 10px; border-radius: 12px; border: 1px solid rgba(50, 215, 75, 0.2);">
+                        <div style="color: var(--ios-green); font-weight: bold; font-size: 0.8rem; margin-bottom: 4px;"><i class="fa-solid fa-gift"></i> THƯỞNG NÓNG</div>
+                        <div style="font-size: 0.7rem; color: #ccc;">Nhận ngay <b>10,000 VND</b> khi bạn bè đăng ký thành công.</div>
+                    </div>
+                    <div style="background: rgba(255, 219, 5, 0.1); padding: 10px; border-radius: 12px; border: 1px solid rgba(255, 219, 5, 0.2);">
+                        <div style="color: var(--ios-accent); font-weight: bold; font-size: 0.8rem; margin-bottom: 4px;"><i class="fa-solid fa-percent"></i> HOA HỒNG</div>
+                        <div style="font-size: 0.7rem; color: #ccc;">Hưởng <b>5%</b> trọn đời trên tổng nạp/rút của F1.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-chart-pie"></i> Thống kê hôm nay</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center;">
+                        <i class="fa-solid fa-bolt" style="color: var(--ios-blue); font-size: 1.2rem; margin-bottom: 5px;"></i>
+                        <div style="font-size: 0.75rem; color: #8e8e93;">Nhiệm vụ</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="statTask">0</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center;">
+                        <i class="fa-solid fa-gamepad" style="color: var(--ios-purple); font-size: 1.2rem; margin-bottom: 5px;"></i>
+                        <div style="font-size: 0.75rem; color: #8e8e93;">Game</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="statGame">0</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center;">
+                        <i class="fa-solid fa-calendar-check" style="color: var(--ios-green); font-size: 1.2rem; margin-bottom: 5px;"></i>
+                        <div style="font-size: 0.75rem; color: #8e8e93;">Điểm danh</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="statAtt">Chưa</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; text-align: center;">
+                        <i class="fa-solid fa-ticket" style="color: var(--ios-accent); font-size: 1.2rem; margin-bottom: 5px;"></i>
+                        <div style="font-size: 0.75rem; color: #8e8e93;">Nhập Code</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; color: #fff;" id="statCode">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 15px; background: linear-gradient(180deg, #1c1c1e 0%, #161618 100%);">
+                <h3><i class="fa-solid fa-handshake" style="color: var(--ios-cyan);"></i> Đối tác chiến lược</h3>
+                <p style="font-size: 0.75rem; color: #8e8e93;">Hợp tác cổng thanh toán & Bảo trợ tài chính</p>
+                                <div class="partner-grid">
+                    <div class="partner-box">
+                        <img src="https://bcp.cdnchinhphu.vn/Uploaded/nguyenhuythang/2020_06_24/tong-dai-vietcombank.jpg" alt="Vietcombank" class="partner-img">
+                    </div>
+                    <div class="partner-box">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4SpMajduAXRDWcF1PRwfI3KLOYmw7ACfN4krq7QGJ2g&s=10" alt="MB Bank" class="partner-img">
+                    </div>
+                    <div class="partner-box">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_hjXkFTBDIRNbDKBV5UMVVj9HdWvKZSuctIe-Zekr0A&s" alt="Techcombank" class="partner-img">
+                    </div>
+                    <div class="partner-box">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPW7orSjW6pyP0wJ-7iTSw99_UEr4AcQLGV9c8_6S_LQ&s=10" alt="ACB" class="partner-img">
+                    </div>
+                    <div class="partner-box">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4VhtIFFD2hcA6oaBemTn0zSdZrbJmqQZHHiQDOQKOmw&s=10" alt="VPBank" class="partner-img">
+                    </div>
+                    <div class="partner-box">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTe_qZVmWgwlj7ngQqxj5g7o4ipXr1c-9ckRF6O-_U4OQ&s=10" alt="BIDV" class="partner-img">
+                    </div>
+                </div>
+                <div class="trust-badge">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--ios-green);"></i>
+                    <span class="trust-text">Được bảo mật bởi SSL & PCI DSS Global</span>
+                </div>
+            </div>
+            <div style="height: 30px;"></div>
+        </div>
+
+        <div id="h-capvip" class="sub-content h-content">
+ <div class="vip-event-promo-card" onclick="navigate(event, 'page-wallet')">
+                <img src="https://i.postimg.cc/CLBZzdVD/8E3295E8-5428-4B33-A493-FBE6A0ACE78A.png" alt="Siêu Sự Kiện VIP" class="vip-event-promo-img">
+                <div class="vip-event-promo-info">
+                    <div class="vip-event-promo-text">
+                        <h4><i class="fa-solid fa-trophy fa-bounce"></i> TUẦN LỄ VÀNG VIP</h4>
+                        <p>Nạp tích lũy nhận X3 phần thưởng thăng cấp & quà độc quyền. Duy nhất tuần này!</p>
+                    </div>
+                    <div class="vip-event-promo-action">
+                        <span class="btn-vip-event-promo">THAM GIA NGAY</span>
+                    </div>
+                </div>
+            </div>
+            <div class="vip-dashboard">
+                <div class="vip-rank-icon"><i class="fa-solid fa-crown"></i></div>
+                <h2 style="color: var(--ios-accent); margin-bottom: 5px;" id="currentVipTitle">VIP 0</h2>
+                <p style="font-size: 0.8rem; color: #8e8e93;">Cấp độ hiện tại của bạn</p>
+                <div class="vip-bar-bg"><div class="vip-bar-fill" id="vipProgressBar" style="width: 0%;"></div></div>
+                <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:#8e8e93; font-weight:bold;"><span>VIP 0</span><span>VIP 9</span></div>
+                <button class="btn-main" onclick="navigate(event, 'page-wallet')" style="width: 100%; margin-top: 20px; background: var(--vip-gold); color: #000; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);">
+                    <i class="fa-solid fa-circle-up"></i> NẠP THĂNG CẤP
+                </button>
+            </div>
+            <h3 style="margin: 15px 0; font-size: 0.9rem; color: #fff;">Quyền lợi từng cấp</h3>
+            <div id="vipListContainer"></div>
+            <div style="height: 30px;"></div>
+        </div>
+
+        <div id="h-luuy" class="sub-content h-content">
+            <div class="card" style="border-left: 4px solid var(--ios-green);">
+                <h3><i class="fa-solid fa-shield-halved"></i> Bảo mật tài khoản</h3>
+                <p>Không chia sẻ mật khẩu cấp 2 và mã OTP cho bất kỳ ai (kể cả Admin) để tránh mất tài sản.</p>
+            </div>
+            <div class="card" style="border: 1px solid #ff453a; background: linear-gradient(180deg, rgba(255, 69, 58, 0.1) 0%, rgba(28,28,30,1) 100%);">
+                <h3 style="color: #ff453a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255, 69, 58, 0.3); padding-bottom: 10px;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Quy định Nạp & Rút
+                </h3>
+                <ul style="list-style: none; padding: 0; margin-top: 15px;">
+                    <li style="margin-bottom: 12px; font-size: 0.8rem; display: flex; gap: 10px; align-items: flex-start;"><i class="fa-solid fa-pen-to-square" style="color: var(--ios-accent); margin-top: 3px;"></i><span><b>Nội dung chuyển khoản:</b> Bắt buộc ghi đúng <b style="color:#fff;">MÃ NẠP</b> hiển thị trên màn hình. Sai nội dung = Treo đơn.</span></li>
+                    <li style="margin-bottom: 12px; font-size: 0.8rem; display: flex; gap: 10px; align-items: flex-start;"><i class="fa-solid fa-ban" style="color: #ff453a; margin-top: 3px;"></i><span><b>Không lưu QR cũ:</b> Mỗi lệnh nạp là một mã QR khác nhau. Tuyệt đối không chuyển vào số tài khoản cũ.</span></li>
+                </ul>
+            </div>
+            <div style="height: 30px;"></div>
+        </div>
+    </div>
+
+    <div id="page-attendance" class="page-container">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'att-week', 'att-content')">Điểm danh tuần</div>
+            <div class="sub-tab" onclick="switchTab(event, 'att-bonus', 'att-content')">Bonus tuần</div>
+            <div class="sub-tab" onclick="switchTab(event, 'att-code', 'att-content')">Nhập code</div>
+        </div>
+        
+        <div id="att-week" class="sub-content att-content active">
+            <div class="card">
+                <h3><i class="fa-solid fa-calendar-day"></i> Điểm danh nhận Quà</h3>
+                <p style="text-align:center; color:var(--ios-accent); font-size:0.9rem; margin-bottom:15px;" id="dailyRewardText">VIP 0: Nhận 5.000 VND / lần</p>
+                <div class="attendance-scroller">
+                    <div class="attendance-track">
+                        <div class="att-day-box checked"><span class="att-day-label">Ngày 1</span><div class="att-icon-wrapper"><i class="fa-solid fa-check"></i></div><span class="att-status">Đã nhận</span></div>
+                        <div class="att-day-box checked"><span class="att-day-label">Ngày 2</span><div class="att-icon-wrapper"><i class="fa-solid fa-check"></i></div><span class="att-status">Đã nhận</span></div>
+                        <div class="att-day-box active"><span class="att-day-label" style="color:var(--ios-accent)">Hôm nay</span><div class="att-icon-wrapper" style="color: #ffd700;"><i class="fa-solid fa-sack-dollar fa-beat"></i></div><span class="att-status" style="color:var(--ios-accent)">Điểm danh</span></div>
+                        <div class="att-day-box"><span class="att-day-label">Ngày 4</span><div class="att-icon-wrapper"><i class="fa-solid fa-sack-dollar"></i></div><span class="att-status">Chờ</span></div>
+                        <div class="att-day-box"><span class="att-day-label">Ngày 5</span><div class="att-icon-wrapper"><i class="fa-solid fa-sack-dollar"></i></div><span class="att-status">Chờ</span></div>
+                    </div>
+                </div>
+                <button class="btn-main" onclick="handleAttendance()" id="btnAtt" style="width:100%; margin-top:20px; box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4); background: var(--ios-blue);">
+                    BẤM ĐỂ ĐIỂM DANH
+                </button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-circle-exclamation" style="color: var(--ios-accent);"></i> Lưu ý khi điểm danh</h3>
+                <div class="warning-box">
+                    <div class="warning-item"><i class="fa-solid fa-clock"></i><span><b>Cơ chế 24h:</b> Bạn chỉ có thể điểm danh lại sau đúng 24 giờ kể từ lần bấm trước đó.</span></div>
+                    <div class="warning-item"><i class="fa-solid fa-wifi"></i><span><b>Kết nối mạng:</b> Vui lòng giữ kết nối mạng ổn định để tránh lỗi mất lượt khi nhận thưởng.</span></div>
+                    <div class="warning-item"><i class="fa-solid fa-gem"></i><span><b>Quyền lợi VIP:</b> Cấp VIP càng cao, số tiền nhận được mỗi lần điểm danh càng lớn.</span></div>
+                    <div class="warning-item"><i class="fa-solid fa-ban"></i><span><b>Gian lận:</b> Cố tình chỉnh giờ điện thoại để điểm danh liên tục sẽ bị khóa tài khoản vĩnh viễn.</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-list-check" style="color: var(--ios-purple);"></i> Lịch trình & Thông tin</h3>
+                <div class="timeline-container">
+                    <div class="timeline-item active">
+                        <div class="timeline-dot"></div><div class="timeline-time">Bây giờ</div>
+                        <div class="timeline-content">Đăng nhập vào App</div><div class="timeline-desc">Hệ thống ghi nhận phiên đăng nhập</div>
+                    </div>
+                    <div class="timeline-item active">
+                        <div class="timeline-dot" style="border-color: var(--ios-green); background: var(--ios-green);"></div>
+                        <div class="timeline-time">Hoạt động</div>
+                        <div class="timeline-content">Kiểm tra trạng thái</div><div class="timeline-desc" id="timelineStatusText">Bạn có thể điểm danh ngay lúc này</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot" style="border-color: var(--ios-accent);"></div>
+                        <div class="timeline-time">Tiếp theo</div>
+                        <div class="timeline-content">Nhận thưởng Bonus tuần</div><div class="timeline-desc">Sau khi điểm danh đủ 7 ngày</div>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 30px;"></div>
+        </div>
+        
+        <div id="att-bonus" class="sub-content att-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-gift"></i> Quà chuyên cần tuần</h3>
+                <p style="color:#8e8e93; font-size:0.8rem;">Điều kiện: Điểm danh và hoàn thành 3 nhiệm vụ mỗi ngày.</p>
+                <div class="bonus-box" style="text-align:center; margin: 25px 0;">
+                    <i class="fa-solid fa-box-open fa-bounce" style="font-size: 4.5rem; color: var(--vip-gold); text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);"></i>
+                    <h2 style="color: var(--ios-green); margin-top: 15px; font-size:1.8rem;">250.000 VND</h2>
+                </div>
+                <div class="progress-container"><div class="progress-bar" id="weeklyProgressBar" style="width: 85%;"></div></div>
+                <p style="text-align:right; font-size:0.75rem; font-weight:bold; margin-top:5px;" id="weeklyProgressText">Tiến độ: 6/7 ngày</p>
+                <button class="btn-main" id="btnBonusWeek" onclick="claimWeeklyBonus()" style="width:100%; margin-top:20px; background:#444;" disabled>CHƯA ĐỦ ĐIỀU KIỆI</button>
+            </div>
+        </div>
+
+        <div id="att-code" class="sub-content att-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-ticket"></i> Đổi mã Giftcode</h3>
+                <div class="input-group">
+                    <input type="text" id="giftcodeInput" placeholder="Nhập Giftcode tại đây...">
+                    <button class="btn-main" onclick="redeemCode()">XÁC NHẬN</button>
+                </div>
+                <div id="banMessage" style="display:none; margin-top:10px; color: var(--ios-red); font-size: 0.8rem; text-align: center; font-weight: bold;">
+                    <i class="fa-solid fa-ban"></i> Bạn bị cấm nhập code đến: <span id="banTimeDisplay"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-tasks" class="page-container">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'task-daily', 'task-content')">Nhiệm vụ ngày</div>
+            <div class="sub-tab" onclick="switchTab(event, 'task-weekly', 'task-content')">Nhiệm vụ tuần</div>
+        </div>
+        
+        <div id="task-daily" class="sub-content task-content active">
+            <div class="card">
+                <h3><i class="fa-solid fa-sun"></i> Nhiệm vụ hôm nay</h3>
+                
+                <div class="task-item">
+                    <div class="task-info"><div class="task-title">Quảng cáo web</div><div class="task-reward">+1,000 VND / +50 XP</div></div>
+                    <button class="task-btn" onclick="handleWatchAd(this)">Thực hiện</button>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-info"><div class="task-title">Chơi 3 ván game bất kỳ</div><div class="task-reward">+5,000 VND / +100 XP</div></div>
+                    <button class="task-btn" id="btnTaskGame" onclick="handleGameTask(this)">0/3</button>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-info"><div class="task-title">Mời 1 bạn bè</div><div class="task-reward">+10,000 VND</div></div>
+                    <button class="task-btn" onclick="handleGoToReferral()">Mời</button>
+                </div>
+
+                <div class="task-item">
+                    <div class="task-info"><div class="task-title">Chia sẻ app</div><div class="task-reward">+2,000 VND</div></div>
+                    <button class="task-btn" onclick="handleShareApp(this)">Chia sẻ</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="task-weekly" class="sub-content task-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-calendar-week"></i> Thử thách tuần</h3>
+                <div class="task-item"><div class="task-info"><div class="task-title">Điểm danh đủ 7 ngày</div><div class="task-reward">+50,000 VND</div></div><button class="task-btn">3/7</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-game" class="page-container">
+        <div id="gameLobby" class="game-lobby">
+            <div class="card" style="margin-top: 10px; background: linear-gradient(90deg, #1c1c1e, #2c2c2e); border:none;">
+                <h3><i class="fa-solid fa-gamepad" style="color:var(--ios-purple)"></i> Kho Game Giải Trí</h3>
+                <p>Chọn trò chơi yêu thích để bắt đầu kiếm tiền!</p>
+            </div>
+
+            <div class="game-grid">
+                <div class="game-card-item" onclick="openGame('parity', 'Chẵn Lẻ Momo')">
+                    <div class="game-tag tag-hot">HOT</div>
+                    <div class="game-card-icon" style="color: #4b8ad6;"><i class="fa-solid fa-dice"></i></div>
+                    <div class="game-card-title">Chẵn Lẻ</div>
+                    <div class="game-card-desc">Tỉ lệ 1 ăn 1.9</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('baucua', 'Bầu Cua Tôm Cá')">
+                    <div class="game-tag tag-new">Mới</div>
+                    <div class="game-card-icon" style="color: #ff9500;"><i class="fa-solid fa-shrimp"></i></div>
+                    <div class="game-card-title">Bầu Cua</div>
+                    <div class="game-card-desc">Cược là thắng (nhà cái)</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('wheel', 'Vòng Quay May Mắn')">
+                    <div class="game-tag tag-vip">VIP</div>
+                    <div class="game-card-icon" style="color: #ffdb05;"><i class="fa-solid fa-dharmachakra"></i></div>
+                    <div class="game-card-title">Vòng Quay</div>
+                    <div class="game-card-desc">Thử vận may</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('gift', 'Hộp Quà Bí Ẩn')">
+                    <div class="game-card-icon" style="color: #ff3b30;"><i class="fa-solid fa-gift"></i></div>
+                    <div class="game-card-title">Mở Quà</div>
+                    <div class="game-card-desc">Nhận thưởng ngẫu nhiên</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('jackpot', 'Nổ Hũ Viễn Chinh')">
+                    <div class="game-tag tag-hot" style="background: #ff00ff;">24H</div>
+                    <div class="game-card-icon" style="color: #32d74b;"><i class="fa-solid fa-rocket"></i></div>
+                    <div class="game-card-title">Nổ Hũ Vé</div>
+                    <div class="game-card-desc">Tích vé đổi đời</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('fish', 'Vua Bắn Cá')">
+                    <div class="game-tag tag-new">NEW</div>
+                    <div class="game-card-icon" style="color: #00d2ff;"><i class="fa-solid fa-fish-fins"></i></div>
+                    <div class="game-card-title">Bắn Cá</div>
+                    <div class="game-card-desc">Săn Boss Đại Dương</div>
+                </div>
+                 
+                 <div class="game-card-item" onclick="openGame('xocdia', 'Xóc Đĩa Tứ Linh')">
+                    <div class="game-tag tag-hot" style="background: #d64b4b;">HOT</div>
+                    <div class="game-card-icon" style="color: #ff3b30;"><i class="fa-solid fa-cookie"></i></div>
+                    <div class="game-card-title">Xóc Đĩa</div>
+                    <div class="game-card-desc">Vận May Qua Tay</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('taixiu', 'Tài Xỉu Cân Cửa')">
+                    <div class="game-tag tag-hot" style="background: #a32acc;">VIP</div>
+                    <div class="game-card-icon" style="color: #fff;"><i class="fa-solid fa-gem"></i></div>
+                    <div class="game-card-title">Tài Xỉu</div>
+                    <div class="game-card-desc">Xanh chín 30s</div>
+                </div>
+
+                <div class="game-card-item" onclick="openGame('aviator', 'Phi Công Tỷ Phú')">
+                    <div class="game-tag tag-hot" style="background: #ff453a;">HOT</div>
+                    <div class="game-card-icon" style="color: #ff453a;"><i class="fa-solid fa-plane-departure"></i></div>
+                    <div class="game-card-title">Máy Bay</div>
+                    <div class="game-card-desc">Cất cánh x100</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Lô Đề 3 Miền')">
+                    <div class="game-tag" style="background: #555; color: #fff;">Bảo Trì</div>
+                    <div class="game-card-icon" style="color: #ff3b30;"><i class="fa-solid fa-list-ol"></i></div>
+                    <div class="game-card-title">Lô Đề 1:99</div>
+                    <div class="game-card-desc">XSMB - XSMN</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Cá Độ Thể Thao')">
+                    <div class="game-tag" style="background: #555; color: #fff;">Update</div>
+                    <div class="game-card-icon" style="color: #32d74b;"><i class="fa-solid fa-futbol"></i></div>
+                    <div class="game-card-title">Thể Thao</div>
+                    <div class="game-card-desc">Kèo bóng đá Anh</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Game Bài Đổi Thưởng')">
+                    <div class="game-tag" style="background: #8e8e93; color: #000;">Sắp ra</div>
+                    <div class="game-card-icon" style="color: #ffdb05;"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="game-card-title">Game Bài</div>
+                    <div class="game-card-desc">Poker & TLMN</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Dò Mìn')">
+                    <div class="game-tag" style="background: #ff453a; color: #fff;">Hot</div>
+                    <div class="game-card-icon" style="color: #ff9500;"><i class="fa-solid fa-bomb"></i></div>
+                    <div class="game-card-title">Dò Mìn</div>
+                    <div class="game-card-desc">Minesweeper</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Cờ Caro XO')">
+                    <div class="game-tag" style="background: #555; color: #fff;">Dev</div>
+                    <div class="game-card-icon" style="color: #00d2ff;"><i class="fa-solid fa-xmarks-lines"></i></div>
+                    <div class="game-card-title">Cờ XO</div>
+                    <div class="game-card-desc">PvP Cược Tiền</div>
+                </div>
+
+                <div class="game-card-item locked" onclick="showMaintenance('Slot Machine 777')">
+                    <div class="game-tag" style="background: #555; color: #fff;">Sắp ra</div>
+                    <div class="game-card-icon" style="color: #af52de;"><i class="fa-solid fa-7"></i></div>
+                    <div class="game-card-title">Slots 777</div>
+                    <div class="game-card-desc">Quay hũ cổ điển</div>
+                </div>
+
+            </div>
+            <div style="height: 50px;"></div>
+        </div>
+        <div id="gamePlayArea" class="game-play-area">
+            <div class="game-nav-header">
+                <button class="btn-back-game" onclick="backToLobby()"><i class="fa-solid fa-chevron-left"></i> Quay lại</button>
+                <div class="game-header-title" id="activeGameTitle">Tên Game</div>
+            </div>
+            
+            <div style="flex:1; overflow-y:auto; padding: 0 10px;">
+                
+                <div id="content-wheel" class="single-game-content">
+                    <div class="card">
+                        <p style="text-align: center; margin-bottom: 10px;">Phí mỗi lượt quay: <b>100,000 VND</b></p>
+                        <div class="wheel-wrapper">
+                            <div class="wheel-container"><div class="wheel-pointer"></div><div class="wheel-center">GO</div><div class="wheel" id="wheel"></div></div>
+                            <button class="btn-main" id="spinBtn" style="width:80%; margin-top:30px; background: var(--ios-accent); color:#000;">QUAY NGAY</button>
+                        </div>
+                        <p id="spinStatus" style="text-align: center; margin-top: 15px; color: var(--ios-green); font-weight: bold; height: 20px;"></p>
+                    </div>
+                </div>
+
+                <div id="content-gift" class="single-game-content">
+                    <div class="card">
+                        <h3>Chọn hộp quà muốn mở</h3>
+                        <div class="gift-grid">
+                            <div class="gift-item" onclick="openGift('Đồng', 5000)">
+                                <div class="gift-icon" style="color: #cd7f32;"><i class="fa-solid fa-box"></i></div>
+                                <div class="gift-info"><div class="gift-name">Hộp quà Đồng</div><div class="gift-price">Phí: 5,000 VND</div></div>
+                                <button class="task-btn">Mở</button>
+                            </div>
+                            <div class="gift-item" onclick="openGift('Bạc', 20000)">
+                                <div class="gift-icon" style="color: #c0c0c0;"><i class="fa-solid fa-box-open"></i></div>
+                                <div class="gift-info"><div class="gift-name">Hộp quà Bạc</div><div class="gift-price">Phí: 20,000 VND</div></div>
+                                <button class="task-btn">Mở</button>
+                            </div>
+                            <div class="gift-item" onclick="openGift('Vàng', 50000)">
+                                <div class="gift-icon" style="color: #ffd700;"><i class="fa-solid fa-gifts"></i></div>
+                                <div class="gift-info"><div class="gift-name">Hộp quà Vàng</div><div class="gift-price">Phí: 50,000 VND</div></div>
+                                <button class="task-btn">Mở</button>
+                            </div>
+                            <div class="gift-item" onclick="openGift('Kim Cương', 500000)">
+                                <div class="gift-icon" style="color: var(--ios-cyan);"><i class="fa-regular fa-gem"></i></div>
+                                <div class="gift-info"><div class="gift-name">Hộp Kim Cương</div><div class="gift-price">Phí: 500,000 VND</div></div>
+                                <button class="task-btn">Mở</button>
+                            </div>
+                        </div>
+                        <p id="giftStatus" style="text-align: center; margin-top: 15px; color: var(--ios-accent); font-weight: bold;"></p>
+                    </div>
+                </div>
+
+                <div id="content-baucua" class="single-game-content">
+                    <div class="card">
+                        <h3 style="justify-content:center;">Xóc Bầu Cua</h3>
+                        <div class="dice-container">
+                            <div class="dice-box" id="dice1">❓</div>
+                            <div class="dice-box" id="dice2">❓</div>
+                            <div class="dice-box" id="dice3">❓</div>
+                        </div>
+                        <p style="text-align: center; font-size: 0.8rem; color: #8e8e93; margin-bottom: 10px;">Bấm vào linh vật để đặt cược (10k/lần)</p>
+                        
+                        <div class="bau-cua-grid">
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('deer')">
+                                <span class="bau-cua-icon">🦌</span>
+                                <span class="bau-cua-label">Nai</span>
+                                <div class="bau-cua-bet" id="bet-deer">0</div>
+                            </div>
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('gourd')">
+                                <span class="bau-cua-icon">🎃</span>
+                                <span class="bau-cua-label">Bầu</span>
+                                <div class="bau-cua-bet" id="bet-gourd">0</div>
+                            </div>
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('chicken')">
+                                <span class="bau-cua-icon">🐔</span>
+                                <span class="bau-cua-label">Gà</span>
+                                <div class="bau-cua-bet" id="bet-chicken">0</div>
+                            </div>
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('fish')">
+                                <span class="bau-cua-icon">🐟</span>
+                                <span class="bau-cua-label">Cá</span>
+                                <div class="bau-cua-bet" id="bet-fish">0</div>
+                            </div>
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('crab')">
+                                <span class="bau-cua-icon">🦀</span>
+                                <span class="bau-cua-label">Cua</span>
+                                <div class="bau-cua-bet" id="bet-crab">0</div>
+                            </div>
+                            <div class="bau-cua-item" onclick="placeBauCuaBet('shrimp')">
+                                <span class="bau-cua-icon">🦐</span>
+                                <span class="bau-cua-label">Tôm</span>
+                                <div class="bau-cua-bet" id="bet-shrimp">0</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn-main" style="flex:1; background: #d64b4b;" onclick="clearBauCuaBets()">Xóa Cược</button>
+                            <button class="btn-main" style="flex:2; background: var(--ios-green); color: #000;" onclick="playBauCua()">MỞ BÁT</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-parity" class="single-game-content">
+                    <div class="card">
+                        <div style="display:flex; align-items:center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                            <h3 style="margin:0; font-size: 1.1rem;">Bàn Chẵn Lẻ S1</h3>
+                            <div class="live-user-badge">
+                                <i class="fa-solid fa-user-group" style="font-size: 0.7rem;"></i>
+                                <span id="liveUserCount" style="font-variant-numeric: tabular-nums;">1,240</span>
+                                <div class="live-dot-blink"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="parity-box" style="padding-top: 0;">
+                            <div class="timer-display" id="parityTimer">30</div>
+                            <p style="color:#8e8e93; font-size:0.8rem; margin-top:5px;" id="parityStatus">Phiên đang chạy...</p>
+                            
+                            <div class="input-control-group">
+                                 <button class="btn-adjust" onclick="adjustBet(-10000)"><i class="fa-solid fa-minus"></i></button>
+                                 <input type="number" id="parityBetAmount" placeholder="0" value="10000">
+                                 <button class="btn-adjust" onclick="adjustBet(10000)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                
+                            <div class="bet-buttons">
+                                <button class="btn-chan" id="btnBetChan" onclick="placeBet('chan')">CHẴN</button>
+                                <button class="btn-le" id="btnBetLe" onclick="placeBet('le')">LẺ</button>
+                            </div>
+                        </div>
+                        <div id="resultOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10; display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(8px); border-radius:20px;">
+                            <h1 style="font-size:6rem; color:#fff; font-weight:900; margin-bottom: 10px;" id="finalResultNumber">?</h1>
+                            <h2 style="color:var(--ios-accent); font-size: 2rem; text-transform: uppercase;" id="finalResultText">...</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-jackpot" class="single-game-content">
+                    <div class="card" style="background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%); border: 1px solid #4ecca3;">
+                        <div class="jackpot-banner">
+                            <div class="jackpot-title">GIẢI ĐẶC BIỆT</div>
+                            <div class="jackpot-amount">3,000,000 VND</div>
+                            <div class="jackpot-timer"><i class="fa-solid fa-clock"></i> Treo máy chờ vận may</div>
+                        </div>
+
+                        <div style="margin-top: 20px; text-align: center;">
+                            <p style="color: #a2a2a2; font-size: 0.8rem; margin-bottom: 10px;">Giá vé: <span style="color: #fff; font-weight: bold;">10,000 VND</span> / vé</p>
+                            
+                            <div class="input-control-group">
+                                <button class="btn-adjust" onclick="adjustTicketQty(-1)"><i class="fa-solid fa-minus"></i></button>
+                                <input type="number" id="ticketQty" value="1" style="width: 80px; color: #4ecca3; border-color: #4ecca3; font-weight: bold;">
+                                <button class="btn-adjust" onclick="adjustTicketQty(1)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+
+                            <button class="btn-main" onclick="buyJackpotTicket()" style="width: 100%; background: linear-gradient(90deg, #11998e, #38ef7d); border: none; box-shadow: 0 0 15px rgba(56, 239, 125, 0.4); text-transform: uppercase; font-size: 1rem; color: #000; font-weight: 800;">
+                                <i class="fa-solid fa-ticket"></i> Mua Vé Ngay
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="color: #4ecca3; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px;">
+                            <i class="fa-solid fa-box-archive"></i> Kho Vé Của Bạn
+                        </h3>
+                        
+                        <div class="ticket-tabs">
+                            <div class="t-tab active" id="tab-pending" onclick="filterTickets('pending')">Đang chờ</div>
+                            <div class="t-tab" id="tab-history" onclick="filterTickets('history')">Lịch sử</div>
+                        </div>
+
+                        <div id="ticketList" class="ticket-list-container">
+                            <div style="text-align: center; color: #666; padding: 20px;">Chưa có vé nào</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-fish" class="single-game-content">
+                    <div class="card" style="padding: 0; overflow: hidden; border: none; background: #001e36; height: 80vh; display: flex; flex-direction: column;">
+                        
+                        <div style="padding: 10px; background: rgba(0,0,0,0.5); display: flex; justify-content: space-between; align-items: center; z-index: 10;">
+                            <div style="font-weight: bold; color: #ffdb05;"><i class="fa-solid fa-sack-dollar"></i> <span id="fishSessionMoney">0</span></div>
+                            <div style="font-weight: bold; color: #fff; font-family: monospace; font-size: 1.2rem; background: rgba(255,0,0,0.3); padding: 2px 8px; border-radius: 5px;" id="fishTimer">60s</div>
+                        </div>
+
+                        <div id="oceanContainer" class="ocean-container">
+                            <div class="start-overlay" id="fishStartOverlay">
+                                <i class="fa-solid fa-fish-fins" style="font-size: 4rem; color: #00d2ff; margin-bottom: 20px;"></i>
+                                <h2 style="color: #fff; text-shadow: 0 0 10px #00d2ff;">VUA BẮN CÁ</h2>
+                                <p style="color: #ccc; margin: 10px 0;">Vé tham dự: <b style="color: var(--ios-red);">100,000 VND</b></p>
+                                <p style="font-size: 0.8rem; color: #888; margin-bottom: 20px;">Thời gian: 60 giây</p>
+                                <button class="btn-main" onclick="startFishGame()" style="background: linear-gradient(90deg, #00d2ff, #007aff); width: 200px; font-weight: 800; box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);">BẮT ĐẦU CHƠI</button>
+                            </div>
+                            
+                            <div class="turret-container">
+                                <div class="turret-body"><i class="fa-solid fa-crosshairs"></i></div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 10px; background: #001529; text-align: center; font-size: 0.7rem; color: #666; z-index: 10;">
+                            Chạm vào cá để bắn - Cá càng to tiền càng nhiều
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-xocdia" class="single-game-content">
+    <div class="card" style="background: #2a0a0a; border: 1px solid #5c1818;">
+        <h3 style="color: #ff3b30; text-align: center; justify-content: center;">SỚI XÓC ĐĨA 88</h3>
+        
+        <div class="timer-display" id="xdTimer" style="text-align: center; font-size: 2.5rem; font-weight: 800; color: var(--ios-accent); font-family: monospace; margin-top: 10px;">30</div>
+        <p id="xocdiaStatus" style="text-align: center; color: #8e8e93; font-size: 0.8rem; margin-top: 5px;">Phiên đang chạy...</p>
+        
+        <div class="xocdia-wrapper">
+            <div class="plate">
+                <div class="coin-group" id="coinGroup">
+                    <div class="coin red"></div>
+                    <div class="coin red"></div>
+                    <div class="coin white"></div>
+                    <div class="coin white"></div>
+                </div>
+                <div class="bowl" id="bowl">
+                    <div class="bowl-texture">CHỜ KẾT QUẢ</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-control-group">
+            <button class="btn-adjust" onclick="adjustXocDiaBet(-50000)"><i class="fa-solid fa-minus"></i></button>
+            <input type="number" id="xocDiaBetAmount" value="50000" style="color: #ff3b30; font-weight: bold;">
+            <button class="btn-adjust" onclick="adjustXocDiaBet(50000)"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div class="bet-buttons">
+            <button class="btn-le" id="btnXocDiaLe" onclick="placeXocDiaBet('le')" style="background: #fff; color: #000;">
+                <div style="font-size: 1.2rem;">⚪ LẺ</div>
+                <div style="font-size: 0.6rem;">1 ăn 1.9</div>
+            </button>
+            <button class="btn-chan" id="btnXocDiaChan" onclick="placeXocDiaBet('chan')" style="background: #ff3b30; color: #fff;">
+                <div style="font-size: 1.2rem;">🔴 CHẴN</div>
+                <div style="font-size: 0.6rem;">1 ăn 1.9</div>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+                <div id="content-taixiu" class="single-game-content">
+                    <div class="card" style="background: #200b21; border: 1px solid #a32acc; position: relative; overflow: hidden;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                            <div class="live-user-badge"><i class="fa-solid fa-users"></i> <span id="txLiveUsers">3,402</span></div>
+                            <div style="font-weight:bold; color:#fff; font-family:monospace; background:rgba(0,0,0,0.5); padding:2px 8px; border-radius:5px;">
+                                <i class="fa-regular fa-clock"></i> <span id="txTimer" style="color:#ffdb05;">30</span>s
+                            </div>
+                        </div>
+
+                        <div class="xocdia-wrapper" style="height: 180px;">
+                            <div class="plate" style="background: #2d1830; border-color: #582b5e;">
+                                <div class="dice-group" id="diceGroup">
+                                    <div class="dice-cube"><div class="dot center"></div></div>
+                                    <div class="dice-cube"><div class="dot top-left"></div><div class="dot bottom-right"></div></div>
+                                    <div class="dice-cube"><div class="dot top-left"></div><div class="dot center"></div><div class="dot bottom-right"></div></div>
+                                </div>
+                                <div class="bowl" id="txBowl" onclick="openTaiXiuBowl()" style="background: radial-gradient(circle, #6a1b9a 0%, #38006b 100%); border-color: #8e24aa;">
+                                    <div class="bowl-texture">MỞ BÁT</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="txResultBar" style="text-align:center; margin: 10px 0; min-height: 25px;">
+                            <span style="color:#888; font-size:0.8rem;">Vui lòng đặt cược</span>
+                        </div>
+
+                        <div class="input-control-group">
+                            <button class="btn-adjust" onclick="adjustTaiXiuBet(-50000)"><i class="fa-solid fa-minus"></i></button>
+                            <input type="number" id="txBetAmount" value="100000" style="color: #a32acc; font-weight: bold;">
+                            <button class="btn-adjust" onclick="adjustTaiXiuBet(50000)"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <div class="bet-buttons" style="gap: 20px;">
+                            <button class="btn-taixiu tx-xiu" id="btnXiu" onclick="placeTaiXiuBet('xiu')">
+                                <div class="tx-name">XỈU</div>
+                                <div class="tx-rate">Nhỏ hơn 11</div>
+                            </button>
+                            <button class="btn-taixiu tx-tai" id="btnTai" onclick="placeTaiXiuBet('tai')">
+                                <div class="tx-name">TÀI</div>
+                                <div class="tx-rate">Lớn hơn 10</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-aviator" class="single-game-content">
+                    <div class="card" style="background: #0f0f0f; border: 1px solid #333; position: relative;">
+                        <div class="aviator-history" id="aviatorHistory">
+                            <div class="history-badge win">1.95x</div>
+                            <div class="history-badge crash">1.10x</div>
+                            <div class="history-badge win">2.40x</div>
+                            <div class="history-badge crash">1.05x</div>
+                        </div>
+
+                        <div class="aviator-stage">
+                            <canvas id="aviatorCanvas" class="aviator-canvas"></canvas>
+                            <div class="aviator-multiplier" id="aviatorMultiplier">1.00x</div>
+                            <div class="aviator-plane" id="aviatorPlane"><i class="fa-solid fa-plane"></i></div>
+                            <div class="boom-effect" id="boomEffect">NỔ TUNG!</div>
+                        </div>
+
+                        <p style="text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 5px;">Mục tiêu: Hạ Cánh <b style="color:#32d74b;">Thành Công</b> để thắng</p>
+                        
+                        <div class="input-control-group">
+                            <button class="btn-adjust" onclick="adjustAviatorBet(-50000)"><i class="fa-solid fa-minus"></i></button>
+                            <input type="number" id="aviatorBetAmount" value="50000" style="color: #ff453a; font-weight: bold;">
+                            <button class="btn-adjust" onclick="adjustAviatorBet(50000)"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <button id="btnAviatorStart" class="btn-main" onclick="startAviator()" style="width: 100%; background: #ff453a; font-size: 1.2rem; height: 50px;">
+                            CƯỢC & BAY
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="page-coins" class="page-container">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'coin-market', 'coin-content')">Thị Trường</div>
+            <div class="sub-tab" onclick="switchTab(event, 'coin-portfolio', 'coin-content')">Danh mục</div>
+            <div class="sub-tab" onclick="switchTab(event, 'coin-warning', 'coin-content')">Cảnh báo</div>
+        </div>
+
+        <div id="coin-market" class="sub-content coin-content active" style="padding-top: 10px;">
+            <div style="display: flex; justify-content: space-between; padding: 0 10px 10px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: flex-end;">
+                <div>
+                    <div style="font-size: 0.8rem; color: #8e8e93;">Vốn hóa toàn cầu</div>
+                    <div style="font-size: 1.1rem; font-weight: bold; color: #fff;">$2.45T <span style="font-size: 0.8rem; color: var(--ios-green);"><i class="fa-solid fa-caret-up"></i> 1.2%</span></div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.8rem; color: #8e8e93;">Vol 24h</div>
+                    <div style="font-size: 1rem; color: #fff;">$85.2B</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 0.8fr 1.2fr 1fr; padding: 10px; font-size: 0.7rem; color: #666; font-weight: bold;">
+                <div>Cặp/Vol</div>
+                <div style="text-align: center;">Giá mới nhất</div>
+                <div style="text-align: right;">24h %</div>
+            </div>
+
+            <div id="coinListContainer" style="padding-bottom: 20px;">
+                </div>
+        </div>
+
+        <div id="coin-portfolio" class="sub-content coin-content">
+            <div class="card portfolio-header">
+                <h3><i class="fa-solid fa-briefcase" style="color: var(--ios-accent);"></i> Gợi ý đầu tư</h3>
+                <p style="font-size: 0.75rem; color: #8e8e93; margin-top: 5px;">
+                    Danh sách các đồng Coin tiềm năng được phân loại theo khẩu vị rủi ro. Dữ liệu chỉ mang tính chất tham khảo.
+                </p>
+            </div>
+
+            <div class="portfolio-grid">
+                <div class="invest-card invest-safe">
+                    <div class="invest-header">
+                        <div class="coin-icon-group">
+                            <i class="fa-brands fa-bitcoin" style="color: #f7931a;"></i>
+                            <div>
+                                <div style="font-weight: bold; color: #fff;">BTC & ETH</div>
+                                <div style="font-size: 0.7rem; color: #8e8e93;">Vua & Nữ Hoàng</div>
+                            </div>
+                        </div>
+                        <div class="invest-badge badge-safe">An Toàn</div>
+                    </div>
+                    <div class="invest-stats">
+                        <div><div class="stat-box">Rủi ro</div><div class="stat-val" style="color: var(--ios-green);">Thấp</div></div>
+                        <div><div class="stat-box">Kỳ vọng</div><div class="stat-val">x2 - x3</div></div>
+                        <div style="text-align: right;"><div class="stat-box">Thời gian</div><div class="stat-val">1-3 năm</div></div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #ccc; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                        Thích hợp cho người mới, tích sản dài hạn (DCA). Đây là danh mục bắt buộc phải có để bảo toàn vốn.
+                    </p>
+                    <button class="btn-main" onclick="investSimulate('BTC/ETH')" style="width: 100%; padding: 8px 0; font-size: 0.8rem; background: rgba(50, 215, 75, 0.2); color: var(--ios-green); border: 1px solid var(--ios-green);">
+                        <i class="fa-solid fa-chart-line"></i> MÔ PHỎNG MUA
+                    </button>
+                </div>
+
+                <div class="invest-card invest-growth">
+                    <div class="invest-header">
+                        <div class="coin-icon-group">
+                            <i class="fa-solid fa-layer-group" style="color: var(--ios-blue);"></i>
+                            <div>
+                                <div style="font-weight: bold; color: #fff;">Layer 1 & AI</div>
+                                <div style="font-size: 0.7rem; color: #8e8e93;">SOL, NEAR, FET</div>
+                            </div>
+                        </div>
+                        <div class="invest-badge badge-growth">Tăng Trưởng</div>
+                    </div>
+                    <div class="invest-stats">
+                        <div><div class="stat-box">Rủi ro</div><div class="stat-val" style="color: var(--ios-blue);">Trung bình</div></div>
+                        <div><div class="stat-box">Kỳ vọng</div><div class="stat-val">x5 - x10</div></div>
+                        <div style="text-align: right;"><div class="stat-box">Thời gian</div><div class="stat-val">6-12 tháng</div></div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #ccc; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                        Các nền tảng công nghệ nền tảng và xu hướng AI. Tiềm năng tăng trưởng mạnh trong mùa Uptrend.
+                    </p>
+                    <button class="btn-main" onclick="investSimulate('Layer1/AI')" style="width: 100%; padding: 8px 0; font-size: 0.8rem; background: rgba(0, 122, 255, 0.2); color: var(--ios-blue); border: 1px solid var(--ios-blue);">
+                        <i class="fa-solid fa-rocket"></i> MÔ PHỎNG MUA
+                    </button>
+                </div>
+
+                <div class="invest-card invest-risk">
+                    <div class="invest-header">
+                        <div class="coin-icon-group">
+                            <i class="fa-solid fa-dog" style="color: var(--ios-red);"></i>
+                            <div>
+                                <div style="font-weight: bold; color: #fff;">Meme & Lowcap</div>
+                                <div style="font-size: 0.7rem; color: #8e8e93;">DOGE, PEPE, GEM</div>
+                            </div>
+                        </div>
+                        <div class="invest-badge badge-risk">Mạo Hiểm</div>
+                    </div>
+                    <div class="invest-stats">
+                        <div><div class="stat-box">Rủi ro</div><div class="stat-val" style="color: var(--ios-red);">Rất Cao</div></div>
+                        <div><div class="stat-box">Kỳ vọng</div><div class="stat-val">x50 - x100</div></div>
+                        <div style="text-align: right;"><div class="stat-box">Thời gian</div><div class="stat-val">Lướt sóng</div></div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #ccc; margin-bottom: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                        "Được ăn cả, ngã về không". Chỉ nên dành 5-10% vốn xổ số. Có thể chia 2, chia 3 tài khoản trong ngày.
+                    </p>
+                    <button class="btn-main" onclick="investSimulate('Meme Coin')" style="width: 100%; padding: 8px 0; font-size: 0.8rem; background: rgba(255, 69, 58, 0.2); color: var(--ios-red); border: 1px solid var(--ios-red);">
+                        <i class="fa-solid fa-fire"></i> MÔ PHỎNG MUA
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="coin-warning" class="sub-content coin-content">
+            <div class="warning-hero">
+                <i class="fa-solid fa-shield-cat"></i>
+                <h3>Vùng Cảnh Báo</h3>
+                <p style="font-size: 0.8rem; color: #ccc;">Thị trường Crypto đầy rẫy cơ hội nhưng cũng lắm cạm bẫy. Hãy đọc kỹ trước khi xuống tiền.</p>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-list-check" style="color: var(--ios-cyan);"></i> Nguyên tắc sống còn</h3>
+                
+                <div class="checklist-container">
+                    <div class="check-item">
+                        <div class="check-icon do"><i class="fa-solid fa-check"></i></div>
+                        <div class="check-content">
+                            <h4>Bảo mật 2 lớp (2FA)</h4>
+                            <p>Luôn bật Google Authenticator cho mọi tài khoản sàn giao dịch và ví.</p>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <div class="check-icon dont"><i class="fa-solid fa-xmark"></i></div>
+                        <div class="check-content">
+                            <h4>Không chia sẻ mã OTP/Private Key</h4>
+                            <p>Admin thật sự sẽ <b>KHÔNG BAO GIỜ</b> nhắn tin trước đòi mã ví hay mật khẩu của bạn.</p>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <div class="check-icon dont"><i class="fa-solid fa-xmark"></i></div>
+                        <div class="check-content">
+                            <h4>Không bấm link lạ</h4>
+                            <p>Tuyệt đối không kết nối ví (Metamask, TrustWallet) vào các trang web airdrop lạ.</p>
+                        </div>
+                    </div>
+
+                     <div class="check-item">
+                        <div class="check-icon do"><i class="fa-solid fa-check"></i></div>
+                        <div class="check-content">
+                            <h4>Kiểm soát lòng tham (FOMO)</h4>
+                            <p>Không vay mượn để đầu tư. Chỉ đầu tư số tiền bạn chấp nhận có thể mất.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scam-alert-box">
+                    <div class="scam-title"><i class="fa-solid fa-triangle-exclamation"></i> CÁC CHIÊU TRÒ LỪA ĐẢO MỚI</div>
+                    <ul class="scam-list">
+                        <li><b>Lừa đảo tình cảm:</b> Làm quen qua mạng, rủ rê đầu tư sàn ảo rồi biến mất.</li>
+                        <li><b>Token giả mạo:</b> Mua token chưa niêm yết (Honeypot) chỉ mua được mà không bán được.</li>
+                        <li><b>Giả mạo hỗ trợ viên:</b> Lập nhóm Telegram giả mạo admin Zun để lừa phí hỗ trợ.</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="height: 30px;"></div>
+        </div>
+    </div>
+
+    <div id="page-shop" class="page-container">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'shop-market', 'shop-content'); renderShop('all')">Cửa Hàng</div>
+            <div class="sub-tab" onclick="switchTab(event, 'shop-inventory', 'shop-content'); renderInventory()">Kho Đồ</div>
+        </div>
+
+        <div id="shop-market" class="sub-content shop-content active">
+            <div class="shop-banner">
+                <div class="shop-banner-content">
+                    <h3>PREMIUM STORE</h3>
+                    <p>Nâng tầm đẳng cấp VIP</p>
+                </div>
+                <i class="fa-solid fa-cart-shopping shop-banner-icon"></i>
+            </div>
+
+            <div class="shop-categories">
+                <button class="cat-btn active" onclick="filterShop('all', this)">Tất cả</button>
+                <button class="cat-btn" onclick="filterShop('vehicle', this)">Siêu xe</button>
+                <button class="cat-btn" onclick="filterShop('property', this)">Bất động sản</button>
+                <button class="cat-btn" onclick="filterShop('tech', this)">Công nghệ</button>
+                <button class="cat-btn" onclick="filterShop('buff', this)">Vật phẩm</button>
+            </div>
+
+            <div id="shopGrid" class="shop-grid">
+                </div>
+            <div style="height: 50px;"></div>
+        </div>
+
+        <div id="shop-inventory" class="sub-content shop-content">
+            <div class="card" style="background: linear-gradient(180deg, #1c1c1e 0%, #1a1a1a 100%); border:none;">
+                <h3><i class="fa-solid fa-box-open" style="color: var(--ios-accent);"></i> Túi đồ của tôi</h3>
+                <p style="font-size: 0.8rem; color: #8e8e93;">Các vật phẩm bạn đã sở hữu</p>
+            </div>
+            
+            <div id="inventoryGrid" class="inventory-grid">
+                <div class="empty-inventory">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                    <p>Chưa mua vật phẩm nào</p>
+                    <button class="btn-main" onclick="switchTab(null, 'shop-market', 'shop-content'); document.querySelector('.sub-tab-nav .sub-tab:first-child').click();">MUA SẮM NGAY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-community" class="page-container">
+        <div class="sub-tab-nav">
+            <div class="sub-tab active" onclick="switchTab(event, 'comm-rank', 'comm-content'); renderLeaderboard('deposit')">Bảng Xếp Hạng</div>
+            <div class="sub-tab" onclick="switchTab(event, 'comm-groups', 'comm-content')">Nhóm Cộng Đồng</div>
+        </div>
+
+        <div id="comm-rank" class="sub-content comm-content active">
+            <div class="rank-filters">
+                <button class="rank-filter-btn active" onclick="filterRank('deposit', this)">Top Nạp</button>
+                <button class="rank-filter-btn" onclick="filterRank('withdraw', this)">Top Rút</button>
+                <button class="rank-filter-btn" onclick="filterRank('vip', this)">Top VIP</button>
+            </div>
+
+            <div class="rank-header-row">
+                <div style="width: 40px; text-align: center;">Hạng</div>
+                <div style="flex: 1; padding-left: 10px;">Thành viên</div>
+                <div style="width: 100px; text-align: right;" id="rankValueTitle">Tổng Nạp</div>
+            </div>
+
+            <div id="leaderboardList" class="leaderboard-list">
+                </div>
+
+            <div class="my-rank-bar">
+                <div class="rank-num">99+</div>
+                <div class="rank-avatar my-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="rank-info">
+                    <div class="rank-name">Bạn (Tôi)</div>
+                    <div class="rank-sub">Thành viên tích cực</div>
+                </div>
+                <div class="rank-value" id="myRankValue">0 VND</div>
+            </div>
+            <div style="height: 60px;"></div> 
+        </div>
+
+        <div id="comm-groups" class="sub-content comm-content">
+            <div class="group-hero">
+                <h3><i class="fa-solid fa-users"></i> KẾT NỐI ĐAM MÊ</h3>
+                <p>Tham gia ngay các cộng đồng độc quyền để nhận Code và Kèo ngon mỗi ngày.</p>
+            </div>
+
+            <div class="group-container">
+                <div class="group-card code-group">
+                    <div class="group-bg-glow"></div>
+                    <div class="group-icon"><i class="fa-brands fa-telegram"></i></div>
+                    <div class="group-content">
+                        <h4 class="group-title">Săn Code & Sự Kiện</h4>
+                        <p class="group-desc">Kênh thông báo Code hàng ngày, event đua top và phát lộc ngẫu nhiên.</p>
+                        <div class="group-stats"><i class="fa-solid fa-user-group"></i> 45.2K Thành viên</div>
+                        <a href="https://t.me/gogolite" target="_blank" class="btn-join-group">THAM GIA NGAY</a>
+                    </div>
+                </div>
+
+                <div class="group-card mmo-group">
+                    <div class="group-bg-glow" style="background: rgba(0, 122, 255, 0.2);"></div>
+                    <div class="group-icon" style="background: #1877f2; color: white;"><i class="fa-brands fa-facebook-f"></i></div>
+                    <div class="group-content">
+                        <h4 class="group-title">Cộng Đồng MMO Việt</h4>
+                        <p class="group-desc">Chia sẻ kèo kiếm tiền, hướng dẫn thủ thuật và giao lưu cùng Admin.</p>
+                        <div class="group-stats"><i class="fa-solid fa-user-group"></i> 128K Thành viên</div>
+                        <a href="https://www.facebook.com/groups/mmo" target="_blank" class="btn-join-group" style="background: #1877f2; color: #fff;">THAM GIA NGAY</a>
+                    </div>
+                </div>
+
+                <div class="group-card" style="border: 1px dashed #555;">
+                    <div class="group-icon" style="background: #333;"><i class="fa-solid fa-comments"></i></div>
+                    <div class="group-content">
+                        <h4 class="group-title">Chat Box Global</h4>
+                        <p class="group-desc">Chát chít chém gió trực tiếp trên App.</p>
+                        <button class="btn-join-group" onclick="document.getElementById('robotBtn').click()" style="background: #444;">MỞ CHAT</button>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 50px;"></div>
+        </div>
+    </div>
+    
+    <div id="page-wallet" class="page-container">
+        <div style="padding: 15px; padding-bottom: 10px;">
+            <h2 style="color:#fff; margin-bottom:15px; font-size:1.4rem; font-weight:800;">Ví Của Tôi</h2>
+            
+            <div class="bank-card-premium">
+                <div class="card-top">
+                    <div class="card-chip-premium"></div>
+                    <div class="card-logo">Zun<span style="color:#ffdb05">BANK</span></div>
+                </div>
+                
+                <div class="card-balance-section">
+                    <div class="card-label">Tổng Số Dư Khả Dụng</div>
+                    <div class="card-money" id="walletCardBalance">0 VND</div>
+                </div>
+
+                <div class="card-info-row">
+                    <div>
+                        <div class="card-label">Chủ Tài Khoản</div>
+                        <div class="card-holder-name">MEMBER VIP</div>
+                    </div>
+                    <div class="card-number-hidden">**** **** **** 8888</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wallet-compact-grid">
+            <div class="compact-btn" onclick="openDepositModal()">
+                <div class="c-icon" style="background:rgba(50, 215, 75, 0.15); color:#32d74b; border:1px solid rgba(50,215,75,0.4)"><i class="fa-solid fa-arrow-down"></i></div>
+                <div class="c-label">Nạp Tiền</div>
+            </div>
+            <div class="compact-btn" onclick="openWithdrawModal()">
+                <div class="c-icon" style="background:rgba(255, 149, 0, 0.15); color:#ff9500; border:1px solid rgba(255,149,0,0.4)"><i class="fa-solid fa-arrow-up"></i></div>
+                <div class="c-label">Rút Tiền</div>
+            </div>
+            <div class="compact-btn" onclick="openHistoryModal('deposit')">
+                <div class="c-icon" style="background:rgba(0, 210, 255, 0.15); color:#00d2ff; border:1px solid rgba(0,210,255,0.4)"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div class="c-label">Lịch Sử</div>
+            </div>
+            <div class="compact-btn" onclick="openHistoryModal('withdraw')">
+                <div class="c-icon" style="background:rgba(175, 82, 222, 0.15); color:#af52de; border:1px solid rgba(175,82,222,0.4)"><i class="fa-solid fa-receipt"></i></div>
+                <div class="c-label">Chi Tiết</div>
+            </div>
+        </div>
+
+        <div class="trans-list">
+            <h3 style="padding: 0 15px; margin-bottom: 10px; font-size: 0.8rem; color: #8e8e93; text-transform:uppercase; letter-spacing:1px; font-weight:bold;">Giao dịch gần đây</h3>
+            <div id="recentTransList"></div>
+        </div>
+    </div>
+
+    <div id="bankingReceiptPopup" class="banking-receipt-popup">
+        <div id="receiptHeader" class="receipt-header">
+            <div class="receipt-icon-circle"><i class="fa-solid fa-check"></i></div>
+            <h3 id="receiptTitle" style="margin:0; font-size:1.2rem;">THÀNH CÔNG</h3>
+            <p style="font-size:0.8rem; opacity:0.8; margin-top:5px;">Biên lai giao dịch điện tử</p>
+        </div>
+        <div class="receipt-body">
+            <div class="receipt-total" id="receiptAmount">0 VND</div>
+            <p style="text-align:center; font-size:0.75rem; color:#888; margin-bottom:20px;">Trạng thái: Đã hoàn tất</p>
+            
+            <div class="receipt-row">
+                <span class="r-label">Thời gian</span>
+                <span class="r-val" id="receiptTime">--:--</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Dịch vụ</span>
+                <span class="r-val" id="receiptType">--</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Mã giao dịch</span>
+                <span class="r-val" id="receiptCode" style="font-family:monospace; color:#333;">--</span>
+            </div>
+        </div>
+        <button class="btn-close-receipt" onclick="closeReceiptPopup()">Đóng biên lai</button>
+    </div>
+
+    <div id="depositModal" class="full-screen-modal">
+    <div class="modal-nav">
+        <button class="back-btn" onclick="closeModal('depositModal')"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="modal-title">Nạp Tiền Hệ Thống</div>
+        <div style="width:20px;"></div>
+    </div>
+
+    <div id="depositStep1">
+        <div class="bank-info-box" style="padding: 20px; border-color: rgba(255,255,255,0.05); margin-top: 15px; background: rgba(255,255,255,0.02);">
+            <i class="fa-solid fa-bolt" style="font-size: 2.5rem; color: var(--ios-blue); margin-bottom: 15px;"></i>
+            <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 10px;">Nạp Tiền Tự Động 24/7</h3>
+            <p style="font-size: 0.85rem; color: #888; line-height: 1.5;">Hệ thống xử lý giao dịch tự động qua mã QR Smart. Tiền sẽ được cộng vào ví trong 1-3 phút sau khi chuyển khoản thành công.</p>
+        </div>
+
+        <div class="input-money-group" style="margin-top: 20px;">
+            <div class="input-money-label">Nhập số tiền muốn nạp (VND)</div>
+            <input type="number" id="depositAmount" class="input-money-field" placeholder="Tối thiểu 10,000...">
+        </div>
+
+        <div class="quick-amounts-grid">
+            <button class="quick-amount-btn" onclick="setAmount(50000)">50.000</button>
+            <button class="quick-amount-btn" onclick="setAmount(100000)">100.000</button>
+            <button class="quick-amount-btn" onclick="setAmount(200000)">200.000</button>
+            <button class="quick-amount-btn" onclick="setAmount(500000)">500.000</button>
+            <button class="quick-amount-btn" onclick="setAmount(1000000)">1.000.000</button>
+            <button class="quick-amount-btn" onclick="setAmount(5000000)">5.000.000</button>
+        </div>
+
+        <button class="btn-confirm-action" style="margin-top: 30px; background: linear-gradient(90deg, #007aff, #00d2ff); color: #fff; box-shadow: 0 5px 20px rgba(0, 122, 255, 0.4);" onclick="generateDepositOrder()">
+            <i class="fa-solid fa-qrcode"></i> TẠO LỆNH NẠP TIỀN
+        </button>
+    </div>
+
+    <div id="depositStep2" style="display: none; padding: 15px; padding-bottom: 50px;">
+        <div class="smart-invoice-card">
+            <div class="invoice-header">
+                <div class="invoice-timer">Thời gian còn lại: <span id="depositCountdown">10:00</span></div>
+                <h3>QUÉT MÃ ĐỂ THANH TOÁN</h3>
+            </div>
+
+            <div class="qr-scanner-box">
+                <div class="qr-scan-line"></div>
+                <img src="https://i.postimg.cc/6510szPd/IMG_5749.jpg" alt="Mã QR Thanh Toán">
+            </div>
+
+            <div class="invoice-amount-box">
+                <span class="lbl">SỐ TIỀN CẦN CHUYỂN</span>
+                <span class="val" id="finalDepositAmount">0 VND</span>
+            </div>
+
+            <div class="invoice-details">
+                <div class="invoice-row">
+                    <span class="lbl">Ngân hàng</span>
+                    <span class="val">TECHCOMBANK</span>
+                </div>
+                <div class="invoice-row">
+                    <span class="lbl">Số tài khoản</span>
+                    <div class="val-copy">
+                        <span class="val" style="color: var(--ios-green);">20777212888</span>
+                        <i class="fa-solid fa-copy copy-icon" onclick="copyText('20777212888')"></i>
+                    </div>
+                </div>
+                <div class="invoice-row">
+                    <span class="lbl">Tên người nhận</span>
+                    <span class="val">DINH ANH CHANG</span>
+                </div>
+            </div>
+
+            <div class="invoice-code-box">
+                <div class="lbl"><i class="fa-solid fa-triangle-exclamation"></i> NỘI DUNG CHUYỂN KHOẢN (BẮT BUỘC)</div>
+                <div class="code-copy-group">
+                    <div class="code-val" id="finalDepositCode">GOGO...</div>
+                    <button class="btn-copy-code" onclick="copyDepositCode()">SAO CHÉP</button>
+                </div>
+                <div class="warning-text">*Vui lòng điền CHÍNH XÁC nội dung trên. Điền sai sẽ không được cộng tiền.</div>
+            </div>
+        </div>
+
+        <button class="btn-confirm-action" style="margin-top: 20px; background: var(--ios-green); color: #000; box-shadow: 0 5px 20px rgba(50, 215, 75, 0.4);" onclick="confirmDepositTransfer()">
+            <i class="fa-solid fa-check-double"></i> TÔI ĐÃ CHUYỂN KHOẢN
+        </button>
+        <button class="btn-main" style="width: 100%; margin-top: 10px; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #888;" onclick="cancelDepositOrder()">
+            HỦY LỆNH NẠP
+        </button>
+    </div>
+</div>
+<div id="verifyDepositModal" class="auth-modal" style="z-index: 3200; justify-content: center; align-items: center; background: rgba(0,0,0,0.95);">
+        <div style="background: #1c1c1e; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; border: 1px solid var(--ios-accent); position: relative; animation: zoomIn 0.3s ease; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+            
+            <i class="fa-solid fa-xmark" onclick="closeModal('verifyDepositModal')" style="position: absolute; top: 15px; right: 15px; color: #888; font-size: 1.2rem; cursor: pointer; padding: 5px;"></i>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--ios-accent); margin-bottom: 15px;"></i>
+                <h3 style="color: #fff; text-transform: uppercase; margin-bottom: 10px;">Xác Nhận Nạp Tiền</h3>
+                <p style="color: #8e8e93; font-size: 0.85rem; line-height: 1.5;">
+                    Vui lòng nhập <b>Mã Xác Nhận</b> (gồm 8 ký tự) đã được gửi về tin nhắn của bạn.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="depositVerifyCode" class="form-input" placeholder="nhập mã xác nhận..." style="text-align: center; font-weight: bold; font-size: 1.3rem; letter-spacing: 2px; text-transform: uppercase; background: #2c2c2e; border: 1px solid #444; color: #fff;">
+                <p id="verifyErrorMsg" style="color: #ff453a; font-size: 0.75rem; text-align: center; margin-top: 8px; display: none; font-weight: bold;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Mã không chính xác!
+                </p>
+            </div>
+
+            <button class="btn-main" onclick="handleVerifyDeposit()" style="width: 100%; background: linear-gradient(90deg, #ffdb05, #ff9500); color: #000; font-weight: 800; margin-top: 15px; padding: 12px; font-size: 1rem; border-radius: 12px;">
+                XÁC NHẬN HOÀN TẤT
+            </button>
+        </div>
+    </div>
+
+    <div id="withdrawModal" class="full-screen-modal">
+        <div class="modal-nav">
+            <button class="back-btn" onclick="closeModal('withdrawModal')"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="modal-title">Rút Tiền</div><div style="width:20px;"></div>
+        </div>
+
+        <div class="input-money-group" style="margin-top: 20px;">
+            <div class="input-money-label">Chọn ngân hàng thụ hưởng</div>
+            <select id="withdrawBank" class="input-money-field" style="font-size: 1rem;">
+                <option value="MB">MB Bank</option>
+                <option value="VCB">Vietcombank (VCB)</option>
+                <option value="TCB">Techcombank (TCB)</option>
+                <option value="ACB">ACB (Á Châu)</option>
+                <option value="BIDV">BIDV</option>
+                <option value="CTG">VietinBank</option>
+                <option value="VPB">VPBank</option>
+                <option value="TPB">TPBank</option>
+                <option value="STB">Sacombank</option>
+                <option value="HDB">HDBank</option>
+                <option value="VIB">VIB</option>
+                <option value="MSB">MSB (Hàng Hải)</option>
+                <option value="OCB">OCB (Phương Đông)</option>
+                <option value="SHB">SHB</option>
+                <option value="MOMO">Ví MoMo</option>
+                <option value="ZALO">ZaloPay</option>
+            </select>
+        </div>
+
+        <div class="input-money-group" style="margin-top: 10px;">
+            <div class="input-money-label">Số tài khoản nhận tiền</div>
+            <input type="number" id="withdrawAccNum" class="input-money-field" placeholder="Nhập số tài khoản" style="font-size: 1.2rem;">
+        </div>
+
+        <div class="input-money-group" style="margin-top: 10px;">
+            <div class="input-money-label">Tên chủ tài khoản (Viết hoa)</div>
+            <input type="text" id="withdrawName" class="input-money-field" placeholder="NGUYEN VAN A" style="font-size: 1.2rem; text-transform: uppercase;">
+        </div>
+
+        <div class="input-money-group" style="margin-top: 10px; border: 1px solid var(--ios-green);">
+            <div class="input-money-label">Số tiền cần rút</div>
+            <input type="number" id="withdrawAmount" class="input-money-field" placeholder="Tối thiểu 50,000" style="color: var(--ios-green);">
+            <div style="font-size: 0.75rem; color: #8e8e93; margin-top: 8px;" id="withdrawBalanceHint">Khả dụng: 0 VND</div>
+        </div>
+
+        <button class="btn-confirm-action" style="background: var(--ios-green); color: #fff;" onclick="confirmWithdraw()">XÁC NHẬN RÚT TIỀN</button>
+    </div>
+
+    <div id="historyModal" class="full-screen-modal">
+        <div class="modal-nav">
+            <button class="back-btn" onclick="closeModal('historyModal')"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="modal-title" id="historyTitle">Lịch Sử</div>
+            <div style="width:20px;"></div>
+        </div>
+        <div id="historyListContent" class="trans-list">
+            </div>
+    </div>
+    
+    <div id="page-user" class="page-container">
+        <div id="guest-view" style="display: none;">
+            <div class="auth-hero">
+                <div style="font-size: 4rem; margin-bottom: 10px;">👨🏿‍💻</div>
+                <h2 style="color: #fff;">Chế độ Khách</h2>
+                <p style="color: #8e8e93; font-size: 0.9rem; margin-top: 5px;">
+                    Bạn đang trải nghiệm hạn chế.<br>Vui lòng đăng nhập để Nạp/Rút.
+                </p>
+            </div>
+            
+            <div class="btn-auth-group">
+                <button class="btn-auth btn-login" onclick="openAuthModal('login')">Đăng Nhập</button>
+                <button class="btn-auth btn-register" onclick="openAuthModal('register')">Đăng Ký</button>
+            </div>
+
+            <div style="padding: 20px;">
+                 <div class="card" style="border: 1px solid var(--ios-red); background: rgba(255, 69, 58, 0.05);">
+                    <h3 style="color: var(--ios-red); margin-bottom: 10px;"><i class="fa-solid fa-triangle-exclamation"></i> CÀI ĐẶT GỐC</h3>
+                    <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px;">Xóa toàn bộ dữ liệu máy này để chơi lại từ đầu.</p>
+                    <button onclick="confirmResetAccount()" class="btn-main" style="width: 100%; background: var(--ios-red);">RESET TÀI KHOẢN</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="logged-view" style="display: none;">
+            <div class="user-info-card">
+                <div class="user-avatar-large"><i class="fa-solid fa-user-astronaut"></i></div>
+                <div style="flex: 1;">
+                    <h2 style="color: var(--ios-accent); margin-bottom: 5px;" id="profileName">Tên Nhân Vật</h2>
+                    <div style="font-size: 0.8rem; color: #fff; margin-bottom: 3px;">ID TikTok: <span id="profileTiktok" style="font-weight: bold; color: var(--ios-blue);">...</span></div>
+                    <div style="font-size: 0.8rem; color: #8e8e93;">ID App: <span id="profilePhone">...</span></div>
+                </div>
+            </div>
+
+            <div style="padding: 0 15px;">
+                 <div class="card" style="background: #2c2c2e;">
+                    <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-shield-halved"></i> Bảo mật</h3>
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span style="color:#ccc">Trạng thái</span><span style="color:var(--ios-green); font-weight:bold;">Đã xác minh</span>
+                    </div>
+                     <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                        <span style="color:#ccc">Loại tài khoản</span><span style="color:var(--ios-purple); font-weight:bold;">Thành viên chính thức</span>
+                    </div>
+                </div>
+
+                <button onclick="handleLogout()" class="btn-main" style="width: 100%; background: #333; margin-top: 20px; border: 1px solid #444;">
+                    <i class="fa-solid fa-right-from-bracket"></i> ĐĂNG XUẤT
+                </button>
+
+                <div class="card" style="border: 1px solid var(--ios-red); background: rgba(255, 69, 58, 0.05); margin-top: 20px;">
+                    <h3 style="color: var(--ios-red); margin-bottom: 10px;">Làm mới tài khoản này</h3>
+                    <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px;">Xóa dữ liệu game của tài khoản hiện tại.</p>
+                    <button onclick="confirmResetAccount()" class="btn-main" style="width: 100%; background: var(--ios-red);">RESET DATA</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav-container">
+        <nav class="bottom-menu">
+            <a href="#" class="menu-item active" onclick="navigate(event, 'page-home')"><i class="fa-solid fa-house"></i><span>Trang chủ</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-attendance')"><i class="fa-solid fa-calendar-check"></i><span>Điểm danh</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-tasks')"><i class="fa-solid fa-bolt"></i><span>Nhiệm vụ</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-game')"><i class="fa-solid fa-gamepad"></i><span>Game</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-coins')"><i class="fa-solid fa-coins"></i><span>Coin</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-shop')"><i class="fa-solid fa-shop"></i><span>Shop</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-community')"><i class="fa-solid fa-users"></i><span>Cộng đồng</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-wallet')"><i class="fa-solid fa-wallet"></i><span>Ví</span></a>
+            <a href="#" class="menu-item" onclick="navigate(event, 'page-user')"><i class="fa-solid fa-user"></i><span>Cá nhân</span></a>
+        </nav>
+        <div class="version-text">phiên bản 1.12w98g</div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

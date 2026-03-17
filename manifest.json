@@ -1,0 +1,21 @@
+{
+  "name": "Zun968",
+  "short_name": "ZUN968",
+  "description": "Nền tảng giải trí và kiếm tiền trực tuyến",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/QdGb0288/304BD327-4DB7-471A-BF58-B4C6DD5F0C8D.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/QdGb0288/304BD327-4DB7-471A-BF58-B4C6DD5F0C8D.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
