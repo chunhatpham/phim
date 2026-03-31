@@ -1532,5 +1532,36 @@
     </div>
 
     <script src="script.js" defer></script>
+<script>
+    // 1. Chặn click chuột phải
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // 2. Chặn các phím tắt nguy hiểm (F12, Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+S)
+    document.onkeydown = function(e) {
+        // Chặn F12
+        if (e.keyCode == 123) {
+            return false;
+        }
+        // Chặn Ctrl + U (Xem mã nguồn)
+        if (e.ctrlKey && e.keyCode == 85) {
+            return false;
+        }
+        // Chặn Ctrl + Shift + I (Mở tab Console)
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 73) {
+            return false;
+        }
+        // Chặn Ctrl + Shift + J
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 74) {
+            return false;
+        }
+        // Chặn Ctrl + S (Lưu trang web)
+        if (e.ctrlKey && e.keyCode == 83) {
+            return false;
+        }
+    };
+</script>
+
 </body>
 </html>
